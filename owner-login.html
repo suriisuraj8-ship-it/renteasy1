@@ -76,6 +76,8 @@
   </div>
 
 <script>
+const BASE_URL = "https://renteasy1.onrender.com"; // ✅ Render backend URL
+
 function toggleForm() {
   const loginBox = document.getElementById('loginBox');
   const signupBox = document.getElementById('signupBox');
@@ -95,7 +97,7 @@ async function login() {
   }
 
   try {
-    const res = await fetch("http://renteasy1.onrender.com/api/owner/login", {
+    const res = await fetch(`${BASE_URL}/api/owner/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone, password }),
@@ -128,13 +130,11 @@ async function signup() {
   }
 
   try {
-    const BASE_URL = "https://renteasy1.onrender.com"; // your Render backend URL
-
-const response = await fetch(`${BASE_URL}/api/owner/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ phone, password })
-});
+    const res = await fetch(`${BASE_URL}/api/owner/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, password }),
+    });
 
     const data = await res.json();
 
