@@ -1,178 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>User Login | RentEasy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body {
-      margin: 0;
-      background: linear-gradient(135deg, #1e3a8a, #0f172a);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 400px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 30px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-    h2 { margin-bottom: 10px; }
-    p { color: #cbd5e1; font-size: 0.9rem; margin-bottom: 25px; }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      outline: none;
-    }
-    input::placeholder { color: #cbd5e1; }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #3b82f6, #2563eb);
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover { background: linear-gradient(90deg, #2563eb, #1d4ed8); transform: scale(1.03); }
-    .toggle { margin-top: 12px; font-size: 0.9rem; color: #93c5fd; cursor: pointer; }
-    .message { margin-top: 10px; font-weight: 600; }
-    .success { color: #4ade80; }
-    .error { color: #f87171; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>User Login | RentEasy</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+  body {
+    background: linear-gradient(135deg,#1e3a8a,#0f172a);
+    color:#fff;display:flex;justify-content:center;align-items:center;
+    height:100vh;overflow:hidden;
+  }
+  .container {
+    width:90%;max-width:360px;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(15px);
+    padding:35px 25px;border-radius:20px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
+    animation:fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn {from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+  h2{font-size:1.7rem;margin-bottom:10px;}
+  p{color:#cbd5e1;margin-bottom:20px;font-size:0.9rem;}
+  input {
+    width:100%;padding:12px;margin:10px 0;
+    border:none;border-radius:12px;outline:none;
+    font-size:1rem;background:rgba(255,255,255,0.2);color:#fff;
+  }
+  input::placeholder{color:#d1d5db;}
+  .btn {
+    width:100%;background:#3b82f6;border:none;padding:12px;
+    border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;
+    transition:all 0.3s;margin-top:10px;
+  }
+  .btn:hover{background:#2563eb;transform:scale(1.02);}
+  .switch{margin-top:15px;font-size:0.85rem;}
+  .switch a{color:#60a5fa;text-decoration:none;}
+  .switch a:hover{text-decoration:underline;}
+  .back-btn{position:absolute;top:20px;left:20px;color:#fff;text-decoration:none;font-size:0.9rem;
+    background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:10px;}
+  .back-btn:active{background:rgba(255,255,255,0.25);}
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <h2 id="formTitle">User Login</h2>
-    <p id="formSubtitle">Login to explore houses, plots & shops.</p>
 
-    <div id="loginForm">
-      <input type="number" id="loginPhone" placeholder="Mobile Number" required />
-      <input type="password" id="loginPassword" placeholder="Password" required />
-      <button onclick="login()">Login</button>
-      <p class="toggle" onclick="showSignup()">Don’t have an account? Sign up</p>
-    </div>
+<a href="index.html" class="back-btn">← Back</a>
 
-    <div id="signupForm" style="display:none;">
-      <input type="text" id="signupName" placeholder="Full Name" required />
-      <input type="number" id="signupPhone" placeholder="Mobile Number" required />
-      <input type="password" id="signupPassword" placeholder="Password" required />
-      <button onclick="signup()">Sign Up</button>
-      <p class="toggle" onclick="showLogin()">Already have an account? Login</p>
-    </div>
+<!-- LOGIN SCREEN -->
+<div class="container" id="loginBox">
+  <h2>User Login</h2>
+  <p>Welcome back! Explore your next home.</p>
+  <input type="tel" placeholder="Phone Number" id="loginPhone" pattern="[0-9]{10}" required>
+  <input type="password" placeholder="Password" id="loginPassword">
+  <button class="btn" onclick="login()">Login</button>
 
-    <div id="message" class="message"></div>
+  <div class="switch">
+    Don’t have an account? <a href="#" onclick="toggleForm()">Sign up</a>
   </div>
+</div>
 
-  <script>
-    const API = "http://renteasy1.onrender.com/api/user";
+<!-- SIGNUP SCREEN -->
+<div class="container" id="signupBox" style="display:none;">
+  <h2>User Sign Up</h2>
+  <p>Create your account to explore properties.</p>
+  <input type="text" placeholder="Full Name" id="signupName">
+  <input type="tel" placeholder="Phone Number" id="signupPhone" pattern="[0-9]{10}" required>
+  <input type="password" placeholder="Password" id="signupPassword">
+  <button class="btn" onclick="signup()">Sign Up</button>
 
-    function showSignup() {
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("signupForm").style.display = "block";
-      document.getElementById("formTitle").textContent = "User Sign Up";
-      document.getElementById("formSubtitle").textContent = "Create your RentEasy account.";
+  <div class="switch">
+    Already have an account? <a href="#" onclick="toggleForm()">Login</a>
+  </div>
+</div>
+
+<script>
+function toggleForm() {
+  const loginBox = document.getElementById('loginBox');
+  const signupBox = document.getElementById('signupBox');
+  const isLoginVisible = loginBox.style.display !== 'none';
+  loginBox.style.display = isLoginVisible ? 'none' : 'block';
+  signupBox.style.display = isLoginVisible ? 'block' : 'none';
+}
+
+// ✅ Base API URL
+const BASE_URL = "https://renteasy1.onrender.com";
+
+// ✅ Login Function
+async function login() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!phone || !password) {
+    alert("Please enter both phone number and password");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/user/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, password }),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Login failed");
+      return;
     }
 
-    function showLogin() {
-      document.getElementById("signupForm").style.display = "none";
-      document.getElementById("loginForm").style.display = "block";
-      document.getElementById("formTitle").textContent = "User Login";
-      document.getElementById("formSubtitle").textContent = "Login to explore properties.";
+    localStorage.setItem("user", JSON.stringify(data.user));
+    window.location.href = "user-select.html";
+  } catch (err) {
+    console.error("Login Error:", err);
+    alert("Server error, please try again");
+  }
+}
+
+// ✅ Signup Function
+async function signup() {
+  const name = document.getElementById('signupName').value.trim();
+  const phone = document.getElementById('signupPhone').value.trim();
+  const password = document.getElementById('signupPassword').value.trim();
+
+  if (!name || !phone || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/user/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, password }),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Signup failed");
+      return;
     }
 
-    async function signup() {
-      const name = document.getElementById("signupName").value.trim();
-      const phone = document.getElementById("signupPhone").value.trim();
-      const password = document.getElementById("signupPassword").value.trim();
-      const message = document.getElementById("message");
-      message.textContent = "";
+    alert("Signup successful! Please log in.");
+    toggleForm();
+  } catch (err) {
+    console.error("Signup Error:", err);
+    alert("Server error, please try again");
+  }
+}
+</script>
 
-      if (!name || !phone || !password) {
-        message.textContent = "Please fill all fields.";
-        message.className = "message error";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API}/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, password })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          message.textContent = "✅ Signup successful! Redirecting...";
-          message.className = "message success";
-          localStorage.setItem("userPhone", phone);
-          localStorage.setItem("userName", name);
-          setTimeout(() => window.location.href = "user-select.html", 800);
-        } else {
-          message.textContent = "❌ " + (data.message || "Signup failed");
-          message.className = "message error";
-        }
-      } catch (err) {
-        console.error(err);
-        message.textContent = "Server error. Try again.";
-        message.className = "message error";
-      }
-    }
-
-    async function login() {
-      const phone = document.getElementById("loginPhone").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-      const message = document.getElementById("message");
-      message.textContent = "";
-
-      if (!phone || !password) {
-        message.textContent = "Please enter both fields.";
-        message.className = "message error";
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, password })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          message.textContent = "✅ Login successful! Redirecting...";
-          message.className = "message success";
-          localStorage.setItem("userPhone", phone);
-          localStorage.setItem("userName", data.user.name);
-          setTimeout(() => window.location.href = "user-select.html", 800);
-        } else {
-          message.textContent = "❌ " + (data.message || "Invalid credentials");
-          message.className = "message error";
-        }
-      } catch (err) {
-        console.error(err);
-        message.textContent = "Server error. Try again.";
-        message.className = "message error";
-      }
-    }
-  </script>
 </body>
 </html>
