@@ -128,11 +128,13 @@ async function signup() {
   }
 
   try {
-    const res = await fetch("http://renteasy1.onrender.com/api/owner/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, password }),
-    });
+    const BASE_URL = "https://renteasy1.onrender.com"; // your Render backend URL
+
+const response = await fetch(`${BASE_URL}/api/owner/login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ phone, password })
+});
 
     const data = await res.json();
 
