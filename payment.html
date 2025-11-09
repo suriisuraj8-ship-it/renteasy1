@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment | Chat Point</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+:root {
+  --bg:#0b0d2b;
+  --card:#131734;
+  --text:#f5f5f5;
+  --muted:#d6b48b;
+  --accent:#ffb366;
+  --radius:14px;
+  --input-bg:#1a1c50;
+}
+body { margin:0; font-family:"Poppins",sans-serif; background:var(--bg); color:var(--text);}
+header { display:flex; justify-content:center; align-items:center; padding:14px 20px; background:#0d0f3a; border-bottom:1px solid #1a1c50; position:sticky; top:0; z-index:50;}
+.brand { font-weight:700; font-size:22px; color:var(--text);}
+.brand .accent { color:var(--accent); }
+
+main { padding:16px; display:flex; flex-direction:column; gap:16px; }
+.summary { background:var(--card); padding:20px; border-radius:var(--radius); box-shadow:0 6px 15px rgba(0,0,0,0.5); display:flex; flex-direction:column; gap:14px; }
+.summary h3 { margin-top:0; color:var(--accent); border-bottom:1px solid #1a1c50; padding-bottom:6px; }
+.summary p { margin:2px 0; }
+
+form { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+form input { padding:12px; border-radius:var(--radius); border:none; background:var(--input-bg); color:var(--text); outline:none; font-weight:500; transition:0.2s; }
+form input:focus { background:#1f213d; box-shadow:0 0 0 2px var(--accent); }
+form button { padding:12px; border-radius:var(--radius); border:none; background:var(--accent); color:var(--bg); font-weight:700; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; }
+form button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(255,179,102,0.5); }
+.payment-methods { display:flex; gap:12px; margin-top:12px; }
+.payment-methods button { flex:1; text-align:center; }
+.location-required { color:#ff6b6b; font-size:12px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="accent">Chat</span> Point</div>
+</header>
+
+<main>
+  <div class="summary">
+    <h3>Order Summary</h3>
+    <p id="totalItems">Total Items: 0</p>
+    <p id="totalPrice">Subtotal: ₹0</p>
+    <p id="deliveryCharge">Delivery: ₹0</p>
+    <p id="finalPrice">Total: ₹0</p>
+
+    <form id="paymentForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="text" id="phone" placeholder="Phone Number" required />
+      <input type="text" id="line1" placeholder="Address Line 1" required />
+      <input type="text" id="line2" placeholder="Address Line 2" required />
+      <input type="text" id="location" placeholder="Fetching your location..." readonly required />
+      <span class="location-required" id="locationWarning"></span>
+
+      <div class="payment-methods">
+        <button type="button" id="cashBtn">Cash on Delivery</button>
+        <button type="button" id="onlineBtn">Pay Online</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+const cart = JSON.parse(localStorage.getItem("cartData")) || {};
+const shop = JSON.parse(localStorage.getItem("selectedShop")) || null;
+
+const totalItemsEl = document.getElementById("totalItems");
+const totalPriceEl = document.getElementById("totalPrice");
+const deliveryChargeEl = document.getElementById("deliveryCharge");
+const finalPriceEl = document.getElementById("finalPrice");
+const locationInput = document.getElementById("location");
+const locationWarning = document.getElementById("locationWarning");
+
+// Calculate totals
+function renderSummary() {
+  let totalItems = 0, totalPrice = 0;
+  Object.keys(cart).forEach(item => {
+    const qty = cart[item];
+    if(qty>0){
+      totalItems += qty;
+      totalPrice += 100 * qty; // Adjust item price if needed
+    }
+  });
+  let delivery = 0;
+  if(totalPrice < 150) delivery = 29;
+  else if(totalPrice < 301) delivery = 25;
+  else if(totalPrice < 501) delivery = 20;
+
+  totalItemsEl.innerText = `Total Items: ${totalItems}`;
+  totalPriceEl.innerText = `Subtotal: ₹${totalPrice}`;
+  deliveryChargeEl.innerText = `Delivery: ₹${delivery}`;
+  finalPriceEl.innerText = `Total: ₹${totalPrice + delivery}`;
+}
+renderSummary();
+
+// Get location
+function getLocation() {
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos => {
+      locationInput.value = `Lat: ${pos.coords.latitude}, Lng: ${pos.coords.longitude}`;
+      locationWarning.innerText = "";
+    }, err => {
+      locationWarning.innerText = "Location is required to place order!";
+      locationInput.value = "";
+    });
+  } else {
+    locationWarning.innerText = "Geolocation not supported!";
+  }
+}
+getLocation();
+
+// Validate form
+function validateForm() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const line1 = document.getElementById("line1").value.trim();
+  const line2 = document.getElementById("line2").value.trim();
+  const location = locationInput.value.trim();
+
+  if(!name || !phone || !line1 || !line2 || !location){
+    alert("Please fill all address fields and enable location!");
+    return false;
+  }
+  return { name, phone, line1, line2, location };
+}
+
+// Cash on Delivery
+document.getElementById("cashBtn").addEventListener("click", async () => {
+  const formData = validateForm();
+  if(!formData) return;
+
+  const orderData = {
+    user: { name: formData.name, phone: formData.phone },
+    shop: shop ? shop.name : "Unknown Shop",
+    items: cart,
+    totalAmount: parseInt(finalPriceEl.innerText.replace("Total: ₹","")),
+    deliveryCharge: parseInt(deliveryChargeEl.innerText.replace("Delivery: ₹","")),
+    address: formData,
+    paymentMethod: "cash"
+  };
+
+  try {
+    const res = await fetch("/api/order", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(orderData)
+    });
+    const data = await res.json();
+    if(data.success){
+      alert("Order placed successfully with Cash on Delivery!");
+      localStorage.removeItem("cartData");
+      window.location.href="home.html";
+    } else {
+      alert(data.message || "Failed to place order");
+    }
+  } catch(err){
+    console.error(err);
+    alert("Server error");
+  }
+});
+
+// Online Payment placeholder
+document.getElementById("onlineBtn").addEventListener("click", () => {
+  alert("Online Payment integration coming soon!");
+});
+</script>
+</body>
+</html>

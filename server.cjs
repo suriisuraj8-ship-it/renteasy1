@@ -1,5 +1,5 @@
 // ==============================
-// RentEasy Backend (server.cjs)
+// Chat Point Backend (server.cjs)
 // ==============================
 
 const express = require("express");
@@ -31,10 +31,12 @@ app.use(express.static(path.join(__dirname, "public")));
 // ==============================
 // Cloudinary Config
 // ==============================
-const cloudinaryUrl = new URL(process.env.CLOUDINARY_URL);
-const [api_key, api_secret] = [cloudinaryUrl.username, cloudinaryUrl.password];
-const cloud_name = cloudinaryUrl.hostname;
-cloudinary.config({ cloud_name, api_key, api_secret });
+if (process.env.CLOUDINARY_URL) {
+  const cloudinaryUrl = new URL(process.env.CLOUDINARY_URL);
+  const [api_key, api_secret] = [cloudinaryUrl.username, cloudinaryUrl.password];
+  const cloud_name = cloudinaryUrl.hostname;
+  cloudinary.config({ cloud_name, api_key, api_secret });
+}
 
 // ==============================
 // MongoDB Connection
@@ -54,14 +56,14 @@ const ownerSchema = new mongoose.Schema({
 const Owner = mongoose.model("Owner", ownerSchema);
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String },
   phone: { type: String, required: true, unique: true },
-  password: String,
+  password: { type: String },
 });
 const User = mongoose.model("User", userSchema);
 
 // ==============================
-// 🏪 Shop Model
+// Shop Model
 // ==============================
 const shopSchema = new mongoose.Schema({
   type: { type: String, default: "shop" },
@@ -77,12 +79,47 @@ const shopSchema = new mongoose.Schema({
 const Shop = mongoose.model("Shop", shopSchema);
 
 // ==============================
-// Multer (Temporary Local Upload)
+// Order Model
+// ==============================
+const orderSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+  user: {
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
+  shop: { type: String, default: "Unknown Shop" },
+  items: [
+    {
+      name: String,
+      price: Number,
+      quantity: Number,
+    },
+  ],
+  totalAmount: Number,
+  deliveryCharge: Number,
+  address: {
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    line1: { type: String, required: true },
+    line2: { type: String },
+    location: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
+    },
+  },
+  paymentMethod: { type: String, default: "cash" },
+  status: { type: String, default: "pending" },
+  date: { type: Date, default: Date.now },
+});
+const Order = mongoose.model("Order", orderSchema);
+
+// ==============================
+// Multer for file uploads
 // ==============================
 const upload = multer({ dest: "uploads/" });
 
 // ==============================
-// 👤 Owner Auth Routes
+// Owner Auth Routes
 // ==============================
 app.post("/api/owner/signup", async (req, res) => {
   try {
@@ -91,8 +128,7 @@ app.post("/api/owner/signup", async (req, res) => {
       return res.status(400).json({ success: false, message: "Phone and password required" });
 
     const existing = await Owner.findOne({ phone });
-    if (existing)
-      return res.status(400).json({ success: false, message: "Owner already exists" });
+    if (existing) return res.status(400).json({ success: false, message: "Owner already exists" });
 
     const newOwner = new Owner({ phone, password });
     await newOwner.save();
@@ -119,7 +155,7 @@ app.post("/api/owner/login", async (req, res) => {
 });
 
 // ==============================
-// 👥 User Auth Routes
+// User Auth Routes
 // ==============================
 app.post("/api/user/signup", async (req, res) => {
   try {
@@ -128,8 +164,7 @@ app.post("/api/user/signup", async (req, res) => {
       return res.status(400).json({ success: false, message: "All fields required" });
 
     const existing = await User.findOne({ phone });
-    if (existing)
-      return res.status(400).json({ success: false, message: "User already exists" });
+    if (existing) return res.status(400).json({ success: false, message: "User already exists" });
 
     const newUser = new User({ name, phone, password });
     await newUser.save();
@@ -156,7 +191,7 @@ app.post("/api/user/login", async (req, res) => {
 });
 
 // ==============================
-// 🏪 Shop Upload / Fetch / Delete
+// Shop Upload / Fetch / Delete
 // ==============================
 app.post("/api/upload", upload.array("photos", 5), async (req, res) => {
   try {
@@ -166,10 +201,9 @@ app.post("/api/upload", upload.array("photos", 5), async (req, res) => {
       return res.status(400).json({ success: false, message: "No images uploaded" });
 
     const imageUrls = [];
-
     for (const file of req.files) {
       try {
-        const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "renteasy" });
+        const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "chatpoint" });
         imageUrls.push(uploadResult.secure_url);
       } catch (uploadErr) {
         console.error("Cloudinary upload failed:", uploadErr);
@@ -197,7 +231,6 @@ app.post("/api/upload", upload.array("photos", 5), async (req, res) => {
   }
 });
 
-// Fetch all shops
 app.get("/api/shops", async (req, res) => {
   try {
     const shops = await Shop.find().sort({ date: -1 });
@@ -208,18 +241,78 @@ app.get("/api/shops", async (req, res) => {
   }
 });
 
-// Delete shop
 app.delete("/api/shop/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Shop.findByIdAndDelete(id);
-    if (!deleted)
-      return res.status(404).json({ success: false, message: "Shop not found" });
-
+    if (!deleted) return res.status(404).json({ success: false, message: "Shop not found" });
     res.json({ success: true, message: "🗑️ Shop deleted successfully" });
   } catch (err) {
     console.error("Delete Error:", err);
     res.status(500).json({ success: false, message: "Failed to delete shop" });
+  }
+});
+
+// ==============================
+// Orders
+// ==============================
+app.post("/api/order", async (req, res) => {
+  try {
+    const { userId, user, shop, items, totalAmount, deliveryCharge, address, paymentMethod } = req.body;
+
+    if (
+      !user?.name ||
+      !user?.phone ||
+      !items ||
+      Object.keys(items).length === 0 ||
+      !address?.line1 ||
+      !address?.location
+    ) {
+      return res.status(400).json({ success: false, message: "Incomplete order data or location missing" });
+    }
+
+    const orderItems = Object.keys(items).map((name) => ({
+      name,
+      price: 100,
+      quantity: items[name],
+    }));
+
+    const order = new Order({
+      userId: userId || null,
+      user,
+      shop: shop || "Unknown Shop",
+      items: orderItems,
+      totalAmount,
+      deliveryCharge,
+      address: {
+        ...address,
+        location: {
+          lat: parseFloat(address.location.split("Lat: ")[1].split(",")[0]),
+          lng: parseFloat(address.location.split("Lng: ")[1]),
+        },
+      },
+      paymentMethod: paymentMethod || "cash",
+      status: paymentMethod === "cash" ? "pending" : "unpaid",
+      date: new Date(),
+    });
+
+    await order.save();
+    res.json({ success: true, message: "✅ Order placed successfully", order });
+  } catch (err) {
+    console.error("Order Save Error:", err);
+    res.status(500).json({ success: false, message: "Failed to save order" });
+  }
+});
+
+// Get orders by userId
+app.get("/api/orders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const orders = await Order.find({ userId }).sort({ date: -1 });
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Fetch Orders Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch orders" });
   }
 });
 
@@ -230,13 +323,12 @@ app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Server running fine 🚀" });
 });
 
-// Serve specific pages
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.get("/upload.html", (req, res) => res.sendFile(path.join(__dirname, "public", "upload.html")));
 app.get("/home.html", (req, res) => res.sendFile(path.join(__dirname, "public", "home.html")));
 app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
 
-// Catch-all route
+// Catch-all
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

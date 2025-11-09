@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cart | Chat Point</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+:root {
+  --bg:#0b0d2b;
+  --card:#131734;
+  --text:#f5f5f5;
+  --muted:#d6b48b;
+  --accent:#ffb366;
+  --radius:14px;
+}
+body { margin:0; font-family:"Poppins",sans-serif; background:var(--bg); color:var(--text);}
+header { display:flex; justify-content:center; align-items:center; padding:14px 20px; background:#0d0f3a; border-bottom:1px solid #1a1c50; position:sticky; top:0; z-index:50;}
+.brand { font-weight:700; font-size:22px; color:var(--text);}
+.brand .accent { color:var(--accent); }
+
+main { padding:16px; }
+.cart-item { display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--card); border-radius:var(--radius); margin-bottom:12px; }
+.cart-item span { flex:1; }
+.cart-item button { background:#ff6b6b; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; color:#fff; }
+.summary { background:var(--card); padding:16px; border-radius:var(--radius); box-shadow:0 6px 15px rgba(0,0,0,0.5); margin-top:20px; }
+.summary p { margin:6px 0; }
+.summary button { padding:12px; border-radius:var(--radius); border:none; background:var(--accent); color:var(--bg); font-weight:700; cursor:pointer; width:100%; margin-top:12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="accent">Chat</span> Point</div>
+</header>
+
+<main>
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+
+  <div class="summary">
+    <p id="totalItems">Total Items: 0</p>
+    <p id="totalPrice">Subtotal: ₹0</p>
+    <p id="deliveryCharge">Delivery: ₹0</p>
+    <p id="finalPrice">Total: ₹0</p>
+    <button id="checkoutBtn">Proceed to Payment</button>
+  </div>
+</main>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cartData")) || {};
+
+const cartItemsEl = document.getElementById("cartItems");
+const totalItemsEl = document.getElementById("totalItems");
+const totalPriceEl = document.getElementById("totalPrice");
+const deliveryChargeEl = document.getElementById("deliveryCharge");
+const finalPriceEl = document.getElementById("finalPrice");
+
+function renderCart() {
+  cartItemsEl.innerHTML = "";
+  let totalItems = 0, totalPrice = 0;
+
+  Object.keys(cart).forEach(key => {
+    const item = cart[key];
+    if(item.quantity > 0){
+      totalItems += item.quantity;
+      totalPrice += item.price * item.quantity;
+
+      const div = document.createElement("div");
+      div.className = "cart-item";
+      div.innerHTML = `
+        <span>${item.name} (x${item.quantity})</span>
+        <span>₹${item.price * item.quantity}</span>
+        <button data-id="${key}">Remove</button>
+      `;
+      cartItemsEl.appendChild(div);
+    }
+  });
+
+  // Delivery calculation
+  let delivery = 0;
+  if(totalPrice < 150 && totalPrice > 0) delivery = 29;
+  else if(totalPrice < 301) delivery = 25;
+  else if(totalPrice < 501) delivery = 20;
+
+  totalItemsEl.innerText = `Total Items: ${totalItems}`;
+  totalPriceEl.innerText = `Subtotal: ₹${totalPrice}`;
+  deliveryChargeEl.innerText = `Delivery: ₹${delivery}`;
+  finalPriceEl.innerText = `Total: ₹${totalPrice + delivery}`;
+
+  // Attach remove buttons
+  document.querySelectorAll(".cart-item button").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const id = e.target.dataset.id;
+      delete cart[id];
+      localStorage.setItem("cartData", JSON.stringify(cart));
+      renderCart();
+    });
+  });
+}
+
+renderCart();
+
+// Checkout button
+document.getElementById("checkoutBtn").addEventListener("click", () => {
+  if(Object.keys(cart).length === 0){
+    alert("Your cart is empty!");
+    return;
+  }
+  // Save cart for payment page
+  localStorage.setItem("cartData", JSON.stringify(cart));
+  window.location.href = "payment.html";
+});
+</script>
+</body>
+</html>
