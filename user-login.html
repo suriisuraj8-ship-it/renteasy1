@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>User Login | RentEasy</title>
+<title>ChatPoint Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
   * {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   body {
-    background: linear-gradient(135deg,#1e3a8a,#0f172a);
+    background: linear-gradient(135deg,#ff6a00,#1e1e1e);
     color:#fff;display:flex;justify-content:center;align-items:center;
     height:100vh;overflow:hidden;
   }
@@ -22,7 +22,11 @@
     animation:fadeIn 0.5s ease;
   }
   @keyframes fadeIn {from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
-  h2{font-size:1.7rem;margin-bottom:10px;}
+  h2{
+    font-size:2rem;margin-bottom:10px;
+  }
+  h2 span.chat{color:#ff7b00;}
+  h2 span.point{color:#fff;}
   p{color:#cbd5e1;margin-bottom:20px;font-size:0.9rem;}
   input {
     width:100%;padding:12px;margin:10px 0;
@@ -31,13 +35,13 @@
   }
   input::placeholder{color:#d1d5db;}
   .btn {
-    width:100%;background:#3b82f6;border:none;padding:12px;
+    width:100%;background:#ff7b00;border:none;padding:12px;
     border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;
     transition:all 0.3s;margin-top:10px;
   }
-  .btn:hover{background:#2563eb;transform:scale(1.02);}
+  .btn:hover{background:#ff8f1a;transform:scale(1.03);}
   .switch{margin-top:15px;font-size:0.85rem;}
-  .switch a{color:#60a5fa;text-decoration:none;}
+  .switch a{color:#ffae42;text-decoration:none;}
   .switch a:hover{text-decoration:underline;}
   .back-btn{position:absolute;top:20px;left:20px;color:#fff;text-decoration:none;font-size:0.9rem;
     background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:10px;}
@@ -50,8 +54,8 @@
 
 <!-- LOGIN SCREEN -->
 <div class="container" id="loginBox">
-  <h2>User Login</h2>
-  <p>Welcome back! Explore your next home.</p>
+  <h2><span class="chat">Chat</span><span class="point">Point</span></h2>
+  <p>Welcome back! Sign in to continue chatting.</p>
   <input type="tel" placeholder="Phone Number" id="loginPhone" pattern="[0-9]{10}" required>
   <input type="password" placeholder="Password" id="loginPassword">
   <button class="btn" onclick="login()">Login</button>
@@ -63,8 +67,8 @@
 
 <!-- SIGNUP SCREEN -->
 <div class="container" id="signupBox" style="display:none;">
-  <h2>User Sign Up</h2>
-  <p>Create your account to explore properties.</p>
+  <h2><span class="chat">Chat</span><span class="point">Point</span> Sign Up</h2>
+  <p>Create your account to start chatting.</p>
   <input type="text" placeholder="Full Name" id="signupName">
   <input type="tel" placeholder="Phone Number" id="signupPhone" pattern="[0-9]{10}" required>
   <input type="password" placeholder="Password" id="signupPassword">
@@ -84,7 +88,7 @@ function toggleForm() {
   signupBox.style.display = isLoginVisible ? 'block' : 'none';
 }
 
-// ✅ Base API URL
+// ✅ Base API URL (unchanged)
 const BASE_URL = "https://renteasy1.onrender.com";
 
 // ✅ Login Function
@@ -97,6 +101,21 @@ async function login() {
     return;
   }
 
+  // ✅ Fixed login shortcuts
+  if (phone === "1111111111") {
+    if (password === "admin") {
+      window.location.href = "owner-select.html";
+      return;
+    } else if (password === "delivery") {
+      window.location.href = "delivery.html";
+      return;
+    } else {
+      window.location.href = "shop.html";
+      return;
+    }
+  }
+
+  // ✅ Normal backend login (unchanged)
   try {
     const res = await fetch(`${BASE_URL}/api/user/login`, {
       method: "POST",
@@ -112,14 +131,14 @@ async function login() {
     }
 
     localStorage.setItem("user", JSON.stringify(data.user));
-    window.location.href = "user-select.html";
+    window.location.href = "shop.html";
   } catch (err) {
     console.error("Login Error:", err);
     alert("Server error, please try again");
   }
 }
 
-// ✅ Signup Function
+// ✅ Signup Function (unchanged)
 async function signup() {
   const name = document.getElementById('signupName').value.trim();
   const phone = document.getElementById('signupPhone').value.trim();

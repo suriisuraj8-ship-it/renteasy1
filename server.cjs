@@ -1,3 +1,7 @@
+// ==============================
+// RentEasy Backend (server.cjs)
+// ==============================
+
 const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
@@ -6,69 +10,80 @@ const cors = require("cors");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
 const path = require("path");
-const User = require("./models/user.cjs"); // ✅ User model
 
+// Load environment variables
 dotenv.config();
+
+// Initialize app
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Middleware
+// ==============================
+// Middleware
+// ==============================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve static frontend directly from root folder
-app.use(express.static(__dirname));
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Cloudinary Config
+// ==============================
+// Cloudinary Config
+// ==============================
 const cloudinaryUrl = new URL(process.env.CLOUDINARY_URL);
 const [api_key, api_secret] = [cloudinaryUrl.username, cloudinaryUrl.password];
 const cloud_name = cloudinaryUrl.hostname;
 cloudinary.config({ cloud_name, api_key, api_secret });
 
-// ✅ MongoDB Connection
+// ==============================
+// MongoDB Connection
+// ==============================
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ Connected to MongoDB Atlas"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-/* ========================================================
-   👤 OWNER MODEL
-======================================================== */
+// ==============================
+// Owner & User Models
+// ==============================
 const ownerSchema = new mongoose.Schema({
   phone: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 const Owner = mongoose.model("Owner", ownerSchema);
 
-/* ========================================================
-   🏠 PROPERTY MODEL (Supports multiple images)
-======================================================== */
-const propertySchema = new mongoose.Schema({
-  type: { type: String, required: true },
+const userSchema = new mongoose.Schema({
+  name: String,
+  phone: { type: String, required: true, unique: true },
+  password: String,
+});
+const User = mongoose.model("User", userSchema);
+
+// ==============================
+// 🏪 Shop Model
+// ==============================
+const shopSchema = new mongoose.Schema({
+  type: { type: String, default: "shop" },
   ownerName: String,
   mobile: String,
-  location: String,
-  floor: String,
-  kitchen: String,
-  bedroom: String,
-  hall: String,
-  garden: String,
-  waterSupply: String,
+  shopName: String,
+  itemName: String,
   price: Number,
-  rent: Number,
   description: String,
   imageUrl: [String],
-  mapLink: String,
   date: { type: Date, default: Date.now },
 });
-const Property = mongoose.model("Property", propertySchema);
+const Shop = mongoose.model("Shop", shopSchema);
 
+// ==============================
+// Multer (Temporary Local Upload)
+// ==============================
 const upload = multer({ dest: "uploads/" });
 
-/* ========================================================
-   👤 OWNER AUTH
-======================================================== */
+// ==============================
+// 👤 Owner Auth Routes
+// ==============================
 app.post("/api/owner/signup", async (req, res) => {
   try {
     const { phone, password } = req.body;
@@ -103,9 +118,9 @@ app.post("/api/owner/login", async (req, res) => {
   }
 });
 
-/* ========================================================
-   👥 USER AUTH
-======================================================== */
+// ==============================
+// 👥 User Auth Routes
+// ==============================
 app.post("/api/user/signup", async (req, res) => {
   try {
     const { name, phone, password } = req.body;
@@ -140,104 +155,93 @@ app.post("/api/user/login", async (req, res) => {
   }
 });
 
-/* ========================================================
-   🏡 PROPERTY UPLOAD / FETCH / DELETE
-======================================================== */
+// ==============================
+// 🏪 Shop Upload / Fetch / Delete
+// ==============================
 app.post("/api/upload", upload.array("photos", 5), async (req, res) => {
   try {
-    const {
-      type,
-      ownerName,
-      mobile,
-      location,
-      price,
-      rent,
-      description,
-      floor,
-      kitchen,
-      bedroom,
-      hall,
-      garden,
-      waterSupply,
-    } = req.body;
+    const { ownerName, mobile, shopName, itemName, price, description, type } = req.body;
 
-    if (!type)
-      return res.status(400).json({ success: false, message: "Property type missing" });
     if (!req.files || req.files.length === 0)
       return res.status(400).json({ success: false, message: "No images uploaded" });
 
     const imageUrls = [];
+
     for (const file of req.files) {
-      const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "renteasy" });
-      fs.unlinkSync(file.path);
-      imageUrls.push(uploadResult.secure_url);
+      try {
+        const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "renteasy" });
+        imageUrls.push(uploadResult.secure_url);
+      } catch (uploadErr) {
+        console.error("Cloudinary upload failed:", uploadErr);
+      } finally {
+        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      }
     }
 
-    let mapLink = "";
-    const match = location.match(/Lat:\s*([\d.-]+),\s*Lng:\s*([\d.-]+)/);
-    if (match) {
-      const [_, lat, lng] = match;
-      mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
-    }
-
-    const newProperty = new Property({
-      type,
+    const shop = new Shop({
+      type: type || "shop",
       ownerName,
       mobile,
-      location,
+      shopName,
+      itemName,
       price,
-      rent,
       description,
-      floor,
-      kitchen,
-      bedroom,
-      hall,
-      garden,
-      waterSupply,
       imageUrl: imageUrls,
-      mapLink,
     });
 
-    await newProperty.save();
-    res.json({ success: true, message: "✅ Property uploaded successfully!", property: newProperty });
+    await shop.save();
+    res.json({ success: true, message: "✅ Shop uploaded successfully", shop });
   } catch (err) {
     console.error("Upload Error:", err);
-    res.status(500).json({ success: false, message: "Failed to upload property" });
+    res.status(500).json({ success: false, message: "Failed to upload shop" });
   }
 });
 
-app.get("/api/houses", async (req, res) => {
+// Fetch all shops
+app.get("/api/shops", async (req, res) => {
   try {
-    const houses = await Property.find({ type: "house" }).sort({ date: -1 });
-    res.json({ success: true, houses });
+    const shops = await Shop.find().sort({ date: -1 });
+    res.json({ success: true, shops });
   } catch (err) {
     console.error("Fetch Error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch houses" });
+    res.status(500).json({ success: false, message: "Failed to fetch shops" });
   }
 });
 
-app.delete("/api/property/:id", async (req, res) => {
+// Delete shop
+app.delete("/api/shop/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Property.findByIdAndDelete(id);
+    const deleted = await Shop.findByIdAndDelete(id);
     if (!deleted)
-      return res.status(404).json({ success: false, message: "Property not found" });
+      return res.status(404).json({ success: false, message: "Shop not found" });
 
-    res.json({ success: true, message: "🗑️ Property deleted successfully" });
+    res.json({ success: true, message: "🗑️ Shop deleted successfully" });
   } catch (err) {
     console.error("Delete Error:", err);
-    res.status(500).json({ success: false, message: "Failed to delete property" });
+    res.status(500).json({ success: false, message: "Failed to delete shop" });
   }
 });
 
-/* ========================================================
-   🌐 SERVE FRONTEND FILES (directly from root)
-======================================================== */
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+// ==============================
+// Health & Frontend Routes
+// ==============================
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, message: "Server running fine 🚀" });
 });
 
-/* ========================================================
-   🚀 START SERVER
-======================================================== */
+// Serve specific pages
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.get("/upload.html", (req, res) => res.sendFile(path.join(__dirname, "public", "upload.html")));
+app.get("/home.html", (req, res) => res.sendFile(path.join(__dirname, "public", "home.html")));
+app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
+
+// Catch-all route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ==============================
+// Start Server
+// ==============================
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
