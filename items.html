@@ -1,176 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Shop Items | Chat Point</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<style>
-:root {
-  --bg:#0b0d2b;
-  --card:#131734;
-  --text:#f5f5f5;
-  --muted:#d6b48b;
-  --accent:#ffb366;
-  --radius:14px;
-  --cart-height:70px;
-  --cart-color:#1c2040; /* new cart color */
-}
-body {
-  margin:0;
-  font-family:"Poppins",sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  padding-bottom:var(--cart-height);
-}
-header {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:14px 20px;
-  background:#0d0f3a;
-  border-bottom:1px solid #1a1c50;
-  position:sticky;
-  top:0;
-  z-index:50;
-}
-.brand { font-weight:700; font-size:22px; color:var(--text);}
-.brand .accent { color:var(--accent); }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Items | Chat Point</title>
 
-main { flex:1; padding:16px; display:flex; flex-direction:column; gap:16px; }
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-.shop-list { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
-.shop-list button { flex:none; padding:10px 16px; border-radius:var(--radius); border:none; background:var(--card); color:var(--accent); cursor:pointer; font-weight:600; transition:transform .2s ease, background .2s ease, color .2s ease; }
-.shop-list button:hover { transform:translateY(-3px); }
-.shop-list button.active { background:var(--accent); color:#0b0d2b; }
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: rgba(20, 25, 45, 0.7);
+      --text: #e0e7ff;
+      --accent: #ff6b35;
+      --glow: rgba(255, 107, 53, 0.3);
+      --radius: 18px;
+      --cart-height: 78px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: var(--cart-height);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.12), transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(100, 200, 255, 0.08), transparent 50%);
+      z-index: -1;
+    }
 
-.items-grid { display:flex; flex-direction:column; gap:12px; }
+    header {
+      padding: 16px 20px;
+      background: rgba(15, 20, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand { font-weight: 800; font-size: 26px; }
+    .brand .chat { 
+      background: linear-gradient(90deg, #ff6b35, #ff8a5b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .shop-name {
+      font-size: 18px; font-weight: 700; color: var(--accent);
+    }
+    .back-btn {
+      font-size: 22px; cursor: pointer; padding: 8px;
+      background: rgba(255, 107, 53, 0.15);
+      border-radius: 50%; transition: 0.3s;
+    }
+    .back-btn:hover { background: var(--accent); color: #000; }
 
-.item-card { display:flex; justify-content:space-between; align-items:flex-start; background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:0 6px 15px rgba(0,0,0,0.5); transition: transform .2s ease, box-shadow .2s ease; }
-.item-card:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,0.7); }
-.item-info { flex:1; }
-.item-name { font-weight:600; font-size:16px; color:var(--accent); }
-.item-price { font-size:14px; color:var(--muted); margin-top:4px; }
-.item-rating { font-size:13px; color:#ffd700; margin-top:2px; }
+    main { padding: 20px; max-width: 1000px; margin: 0 auto; }
 
-.item-img-container { display:flex; flex-direction:column; align-items:center; }
-.item-img { width:80px; height:80px; object-fit:cover; border-radius:var(--radius); }
-.quantity-buttons { display:flex; justify-content:center; margin-top:8px; gap:6px; }
-.quantity-buttons button { padding:4px 10px; border-radius:6px; border:1px solid var(--accent); cursor:pointer; background:none; color:var(--text); font-weight:500; }
-.quantity-buttons button:hover { background:var(--accent); color:var(--bg); }
+    .login-banner {
+      background: rgba(255, 107, 53, 0.15);
+      border: 1px solid rgba(255, 107, 53, 0.4);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+      color: #ff8a5b;
+    }
+    .login-banner a {
+      color: #ff6b35;
+      text-decoration: underline;
+    }
 
-.cart-bar { position:fixed; bottom:0; left:0; width:100%; height:var(--cart-height); background:var(--cart-color); display:flex; justify-content:space-between; align-items:center; padding:0 20px; font-weight:700; font-size:16px; cursor:pointer; z-index:100; display:none; border-top:1px solid #1a1c50; border-radius:8px 8px 0 0; color:#fff; }
-</style>
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .item-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+      transition: 0.4s;
+    }
+    .item-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 25px var(--glow);
+    }
+    .item-img {
+      width: 100%; height: 180px; object-fit: cover;
+      background: #1a1a2e;
+    }
+    .item-info {
+      padding: 16px;
+    }
+    .item-name {
+      font-weight: 700; font-size: 18px; color: #fff;
+    }
+    .item-desc {
+      font-size: 13px; color: #a8b8ff; margin: 6px 0 10px;
+    }
+    .item-price {
+      font-weight: 900; font-size: 19px; color: var(--accent);
+    }
+    .quantity {
+      display: flex; align-items: center; gap: 12px; margin-top: 12px;
+      background: rgba(255, 107, 53, 0.1); padding: 8px 12px;
+      border-radius: 50px; justify-content: center;
+    }
+    .qbtn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255, 107, 53, 0.2); color: #fff;
+      border: none; font-weight: bold; cursor: pointer;
+      transition: 0.3s;
+    }
+    .qbtn:hover {
+      background: var(--accent); color: #000;
+    }
+    .qty { min-width: 30px; text-align: center; font-weight: 900; color: #34d399; }
+
+    .cart-bar {
+      position: fixed; left: 12px; right: 12px; bottom: 12px;
+      height: var(--cart-height); background: rgba(15, 20, 40, 0.98);
+      border-radius: 18px; padding: 0 24px;
+      display: none; align-items: center; justify-content: space-between;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      backdrop-filter: blur(20px); z-index: 100;
+    }
+    .cart-info .main { font-size: 18px; font-weight: 900; }
+    .checkout-btn {
+      background: linear-gradient(90deg, #34d399, #10b981);
+      color: #000; font-weight: 900; padding: 12px 24px;
+      border-radius: 14px; border: none; cursor: pointer;
+      transition: 0.3s;
+    }
+    .checkout-btn:hover {
+      transform: scale(1.05); box-shadow: 0 0 20px rgba(52, 211, 153, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .items-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="brand"><span class="accent">Chat</span> Point</div>
-</header>
+  <header>
+    <div class="back-btn" onclick="history.back()">
+      <i class="fas fa-arrow-left"></i>
+    </div>
+    <div class="brand"><span class="chat">Chat</span>Point</div>
+    <div class="shop-name" id="shopName">Loading...</div>
+  </header>
 
-<main>
-  <div class="shop-list" id="shopList"></div>
-  <div class="items-grid" id="itemGrid">
-    <div class="placeholder">Select a shop to view items...</div>
+  <main>
+    <div id="loginBanner" class="login-banner" style="display:none;">
+      Please <a href="login.html">login</a> to add items to cart.
+    </div>
+    <div class="items-grid" id="itemsGrid"></div>
+  </main>
+
+  <div class="cart-bar" id="cartBar" onclick="openCartPage()">
+    <div class="cart-info">
+      <div class="main" id="cartText">0 items · ₹0</div>
+      <div style="font-size:13px; color:#888; margin-top:4px;">Tap to view cart</div>
+    </div>
+    <button class="checkout-btn" onclick="event.stopPropagation(); openCartPage()">
+      Checkout
+    </button>
   </div>
-</main>
 
-<div class="cart-bar" id="cartBar" onclick="openCartPage()">
-  <span id="cartText">0 items - ₹0</span>
-  <i class="fa fa-shopping-cart"></i>
-</div>
+  <script>
+    // ============== USER LOGIN CHECK ==============
+    const USER_KEY = "chatpoint_user";
+    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+    const isLoggedIn = user && user._id;
 
-<script>
-const shops = [
-  { name:"Fly Pizza", items:["Margherita","Pepperoni","Farmhouse","Veggie Delight"] },
-  { name:"Ayyngar", items:["Dosa","Idli","Vada","Uttapam"] },
-  { name:"Mister Shef", items:["Burger","Fries","Chicken Wings","Salad"] },
-  { name:"Udapi Hotel - Sangambar", items:["Thali","Sambar Rice","Chutney","Vada"] },
-  { name:"Dolphin", items:["Paneer Butter Masala","Naan","Rice","Veg Curry"] },
-  { name:"Pizza Point", items:["Cheese Burst","Tandoori Paneer","Mexican Green Wave","Farmhouse"] },
-  { name:"7 Wonder", items:["Pasta","Garlic Bread","Lasagna","Pizza Slice"] },
-  { name:"Star Hotel", items:["Biryani","Chicken Curry","Mutton Curry","Dal Tadka"] }
-];
+    // Show login banner if needed
+    if (!isLoggedIn) {
+      document.getElementById("loginBanner").style.display = "block";
+    }
 
-let selectedShop=null;
-let cart={};
+    // ============== SHOP DATA + REAL IMAGES ==============
+    const shopData = {
+      "7th Wonder (Cake)": [
+        { name: "Chocolate Truffle Cake", price: 350 },
+        { name: "Red Velvet Cake", price: 380 },
+        { name: "Black Forest", price: 320 }
+      ],
+      "Sangambar Udpi-Hotel": [
+        { name: "Masala Dosa", price: 75 },
+        { name: "Plain Dosa", price: 60 },
+        { name: "Idli (2 pcs)", price: 55 },
+        { name: "Vada", price: 45 }
+      ],
+      "Nandini Grand Hotels": [
+        { name: "Crispy Dosa", price: 85 },
+        { name: "Rava Dosa", price: 95 }
+      ],
+      "Pizza Point": [
+        { name: "Margherita", price: 99 },
+        { name: "Pepperoni", price: 149 }
+      ],
+      "Fly Pizza": [
+        { name: "Veggie Delight", price: 129 },
+        { name: "Margherita", price: 99 }
+      ],
+      "Mister Chef": [
+        { name: "Classic Burger", price: 120 },
+        { name: "French Fries", price: 99 }
+      ],
+      "Bekary": [
+        { name: "Veg Sandwich", price: 80 }
+      ],
+      "Dolphin": [
+        { name: "Chicken Tandoori", price: 280 }
+      ]
+    };
 
-const shopListContainer=document.getElementById("shopList");
-const itemGrid=document.getElementById("itemGrid");
-const cartBar=document.getElementById("cartBar");
-const cartText=document.getElementById("cartText");
+    // ============== GET SHOP FROM URL ==============
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopName = decodeURIComponent(urlParams.get("shop") || "");
+    const shopItems = shopData[shopName] || [];
 
-// Populate shops
-shops.forEach(shop=>{
-  const btn=document.createElement("button");
-  btn.innerText=shop.name;
-  btn.onclick=()=>{
-    selectedShop=shop;
-    document.querySelectorAll(".shop-list button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    renderItems(shop);
-  };
-  shopListContainer.appendChild(btn);
-});
+    // ============== DOM ELEMENTS ==============
+    const shopNameEl = document.getElementById("shopName");
+    const itemsGrid = document.getElementById("itemsGrid");
+    const cartBar = document.getElementById("cartBar");
+    const cartText = document.getElementById("cartText");
 
-// Render items
-function renderItems(shop){
-  itemGrid.innerHTML="";
-  shop.items.forEach(item=>{
-    const card=document.createElement("div");
-    card.className="item-card";
-    card.innerHTML=`
-      <div class="item-info">
-        <div class="item-name">${item}</div>
-        <div class="item-price">₹100</div>
-        <div class="item-rating">⭐ ${(Math.random()*0.5+4.4).toFixed(1)}</div>
-      </div>
-      <div class="item-img-container">
-        <img class="item-img" src="https://via.placeholder.com/80" />
-        <div class="quantity-buttons">
-          <button onclick="changeQty('${item}',-1)">-</button>
-          <span id="qty-${item}">0</span>
-          <button onclick="changeQty('${item}',1)">+</button>
-        </div>
-      </div>
-    `;
-    itemGrid.appendChild(card);
-  });
-}
+    // ============== CART LOGIC (GLOBAL) ==============
+    let cart = JSON.parse(localStorage.getItem("chatpoint_cart")) || {};
 
-// Change quantity
-function changeQty(item, delta){
-  if(!cart[item]) cart[item]=0;
-  cart[item]=Math.max(0,cart[item]+delta);
-  document.getElementById(`qty-${item}`).innerText=cart[item];
-  updateCartBar();
-}
+    function saveCart() {
+      localStorage.setItem("chatpoint_cart", JSON.stringify(cart));
+      updateCartBar();
+    }
 
-// Update cart bar
-function updateCartBar(){
-  let totalItems=0, totalPrice=0;
-  Object.keys(cart).forEach(k=>{
-    totalItems+=cart[k];
-    totalPrice+=cart[k]*100;
-  });
-  if(totalItems>0){
-    cartBar.style.display="flex";
-    cartText.innerText=`${totalItems} items - ₹${totalPrice}`;
-  }else{
-    cartBar.style.display="none";
-  }
-}
+    function updateCartBar() {
+      let totalItems = 0, totalPrice = 0;
+      for (const shop in cart) {
+        for (const item in cart[shop]) {
+          totalItems += cart[shop][item].qty;
+          totalPrice += cart[shop][item].qty * cart[shop][item].price;
+        }
+      }
+      cartText.textContent = `${totalItems} items · ₹${totalPrice}`;
+      cartBar.style.display = totalItems > 0 ? "flex" : "none";
+    }
 
-// Open cart page
-function openCartPage(){
-  localStorage.setItem("cartData", JSON.stringify(cart));
-  localStorage.setItem("selectedShop", JSON.stringify(selectedShop));
-  window.location.href="cart.html"; // You will create cart.html to show full cart
-}
-</script>
+    function changeQty(shop, itemName, price, delta) {
+      if (!isLoggedIn) {
+        alert("Please login to add items to cart.");
+        return;
+      }
+      if (!cart[shop]) cart[shop] = {};
+      if (!cart[shop][itemName]) cart[shop][itemName] = { qty: 0, price };
+      cart[shop][itemName].qty = Math.max(0, cart[shop][itemName].qty + delta);
+      if (cart[shop][itemName].qty === 0) delete cart[shop][itemName];
+      if (Object.keys(cart[shop]).length === 0) delete cart[shop];
+      saveCart();
+      renderItems();
+    }
 
+    function openCartPage() {
+      if (!isLoggedIn) {
+        alert("Please login to view cart.");
+        window.location.href = "login.html";
+        return;
+      }
+      window.location.href = "cart.html";
+    }
+
+    // ============== FORMAT IMAGE NAME ==============
+    function getImagePath(itemName) {
+      return `images/${itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`;
+    }
+
+    // ============== RENDER ITEMS ==============
+    function renderItems() {
+      itemsGrid.innerHTML = "";
+      if (shopItems.length === 0) {
+        itemsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#888;padding:40px;font-size:18px;">No items found for this shop.</div>`;
+        return;
+      }
+
+      shopItems.forEach(item => {
+        const qty = cart[shopName]?.[item.name]?.qty || 0;
+        const imgSrc = getImagePath(item.name);
+
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        // Build quantity controls only if logged in
+        const qtyHTML = isLoggedIn
+          ? `
+            <div class="quantity">
+              <button class="qbtn" onclick="changeQty('${shopName}', '${item.name}', ${item.price}, -1)">−</button>
+              <div class="qty">${qty}</div>
+              <button class="qbtn" onclick="changeQty('${shopName}', '${item.name}', ${item.price}, 1)">+</button>
+            </div>
+          `
+          : `<div style="margin-top:12px; color:#ff8a5b; font-size:13px; text-align:center;">Login to add</div>`;
+
+        card.innerHTML = `
+          <img class="item-img" src="${imgSrc}" alt="${item.name}"
+               onerror="this.src='https://via.placeholder.com/300x180/1a1a2e/ffffff?text=${encodeURIComponent(item.name)}'" loading="lazy">
+          <div class="item-info">
+            <div class="item-name">${item.name}</div>
+            <div class="item-desc">Fresh • Chef's Special</div>
+            <div class="item-price">₹${item.price}</div>
+            ${qtyHTML}
+          </div>
+        `;
+        itemsGrid.appendChild(card);
+      });
+    }
+
+    // ============== INIT ==============
+    if (shopName && shopData[shopName]) {
+      shopNameEl.textContent = shopName;
+      renderItems();
+      updateCartBar();
+    } else {
+      shopNameEl.textContent = "Shop Not Found";
+      itemsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#f55;padding:40px;">Invalid shop. <a href="index.html" style="color:var(--accent)">Go back</a></div>`;
+    }
+  </script>
 </body>
 </html>

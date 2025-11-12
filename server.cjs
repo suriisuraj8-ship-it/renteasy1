@@ -1,176 +1,81 @@
 // ==============================
-// Chat Point Backend (server.cjs)
+// RENT EASY – server.cjs (Render + Local)
 // ==============================
 
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const multer = require("multer");
-const dotenv = require("dotenv");
 const cors = require("cors");
-const { v2: cloudinary } = require("cloudinary");
-const fs = require("fs");
 const path = require("path");
+const bodyParser = require("body-parser");
 
-// Load environment variables
-dotenv.config();
-
-// Initialize app
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ==============================
-// Middleware
-// ==============================
+// ---------- MIDDLEWARE ----------
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
 
-// ==============================
-// Cloudinary Config
-// ==============================
-if (process.env.CLOUDINARY_URL) {
-  const cloudinaryUrl = new URL(process.env.CLOUDINARY_URL);
-  const [api_key, api_secret] = [cloudinaryUrl.username, cloudinaryUrl.password];
-  const cloud_name = cloudinaryUrl.hostname;
-  cloudinary.config({ cloud_name, api_key, api_secret });
-}
-
-// ==============================
-// MongoDB Connection
-// ==============================
+// ---------- MONGODB ----------
+const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/renteasy";
 mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+  .connect(mongoURI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB error:", err);
+    process.exit(1);
+  });
 
-// ==============================
-// Owner & User Models
-// ==============================
-const ownerSchema = new mongoose.Schema({
+// ---------- MODELS ----------
+const User = mongoose.model("User", new mongoose.Schema({
+  name: String,
   phone: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
-const Owner = mongoose.model("Owner", ownerSchema);
+  password: String,
+}));
 
-const userSchema = new mongoose.Schema({
-  name: { type: String },
-  phone: { type: String, required: true, unique: true },
-  password: { type: String },
-});
-const User = mongoose.model("User", userSchema);
-
-// ==============================
-// Shop Model
-// ==============================
-const shopSchema = new mongoose.Schema({
+const Shop = mongoose.model("Shop", new mongoose.Schema({
   type: { type: String, default: "shop" },
   ownerName: String,
   mobile: String,
   shopName: String,
-  itemName: String,
-  price: Number,
-  description: String,
-  imageUrl: [String],
+  items: [{ name: String, price: Number, description: String, imageUrl: [String] }],
   date: { type: Date, default: Date.now },
-});
-const Shop = mongoose.model("Shop", shopSchema);
+}));
 
-// ==============================
-// Order Model
-// ==============================
-const orderSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-  user: {
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-  },
-  shop: { type: String, default: "Unknown Shop" },
-  items: [
-    {
-      name: String,
-      price: Number,
-      quantity: Number,
-    },
-  ],
+const Order = mongoose.model("Order", new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: { name: String, phone: String },
+  shop: String,
+  items: [{ name: String, price: Number, quantity: Number }],
   totalAmount: Number,
   deliveryCharge: Number,
-  address: {
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    line1: { type: String, required: true },
-    line2: { type: String },
-    location: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true },
-    },
-  },
+  address: { name: String, phone: String, line1: String, line2: String },
   paymentMethod: { type: String, default: "cash" },
   status: { type: String, default: "pending" },
   date: { type: Date, default: Date.now },
-});
-const Order = mongoose.model("Order", orderSchema);
+}, { timestamps: true }));
 
 // ==============================
-// Multer for file uploads
+// API ROUTES
 // ==============================
-const upload = multer({ dest: "uploads/" });
 
-// ==============================
-// Owner Auth Routes
-// ==============================
-app.post("/api/owner/signup", async (req, res) => {
-  try {
-    const { phone, password } = req.body;
-    if (!phone || !password)
-      return res.status(400).json({ success: false, message: "Phone and password required" });
-
-    const existing = await Owner.findOne({ phone });
-    if (existing) return res.status(400).json({ success: false, message: "Owner already exists" });
-
-    const newOwner = new Owner({ phone, password });
-    await newOwner.save();
-    res.json({ success: true, message: "✅ Owner registered successfully" });
-  } catch (err) {
-    console.error("Signup Error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-app.post("/api/owner/login", async (req, res) => {
-  try {
-    const { phone, password } = req.body;
-    const owner = await Owner.findOne({ phone });
-    if (!owner) return res.status(404).json({ success: false, message: "❌ Owner not found" });
-    if (owner.password !== password)
-      return res.status(401).json({ success: false, message: "❌ Incorrect password" });
-
-    res.json({ success: true, message: "✅ Login successful", owner });
-  } catch (err) {
-    console.error("Login Error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// ==============================
-// User Auth Routes
-// ==============================
 app.post("/api/user/signup", async (req, res) => {
   try {
     const { name, phone, password } = req.body;
-    if (!name || !phone || !password)
-      return res.status(400).json({ success: false, message: "All fields required" });
-
-    const existing = await User.findOne({ phone });
-    if (existing) return res.status(400).json({ success: false, message: "User already exists" });
-
-    const newUser = new User({ name, phone, password });
-    await newUser.save();
-    res.json({ success: true, message: "✅ User registered successfully" });
-  } catch (err) {
-    console.error("User Signup Error:", err);
+    if (!name || !phone || !password) return res.status(400).json({ success: false, message: "All fields required" });
+    const exists = await User.findOne({ phone });
+    if (exists) return res.status(400).json({ success: false, message: "Phone already registered" });
+    const user = new User({ name, phone, password });
+    await user.save();
+    res.json({ success: true, message: "Signup successful" });
+  } catch (e) {
+    console.error("SIGNUP ERROR:", e.message);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -179,161 +84,117 @@ app.post("/api/user/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
     const user = await User.findOne({ phone });
-    if (!user) return res.status(404).json({ success: false, message: "❌ User not found" });
-    if (user.password !== password)
-      return res.status(401).json({ success: false, message: "❌ Incorrect password" });
-
-    res.json({ success: true, message: "✅ Login successful", user });
-  } catch (err) {
-    console.error("User Login Error:", err);
+    if (!user || user.password !== password) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    res.json({ success: true, user: { _id: user._id, name: user.name, phone: user.phone } });
+  } catch (e) {
+    console.error("LOGIN ERROR:", e.message);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// ==============================
-// Shop Upload / Fetch / Delete
-// ==============================
-app.post("/api/upload", upload.array("photos", 5), async (req, res) => {
+app.post("/api/save-order", async (req, res) => {
   try {
-    const { ownerName, mobile, shopName, itemName, price, description, type } = req.body;
+    const { userId, name, phone, address1, address2, cart, itemsTotal, deliveryCharge = 30, grandTotal, paymentMode = "cash" } = req.body;
+    if (!userId || !name || !phone || !address1 || !cart) return res.status(400).json({ success: false, message: "Missing data" });
 
-    if (!req.files || req.files.length === 0)
-      return res.status(400).json({ success: false, message: "No images uploaded" });
-
-    const imageUrls = [];
-    for (const file of req.files) {
-      try {
-        const uploadResult = await cloudinary.uploader.upload(file.path, { folder: "chatpoint" });
-        imageUrls.push(uploadResult.secure_url);
-      } catch (uploadErr) {
-        console.error("Cloudinary upload failed:", uploadErr);
-      } finally {
-        if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+    const items = [];
+    let total = 0;
+    for (const shop in cart) {
+      for (const item in cart[shop]) {
+        const { qty, price } = cart[shop][item];
+        if (qty > 0) {
+          items.push({ name: item, price, quantity: qty });
+          total += qty * price;
+        }
       }
     }
+    if (items.length === 0) return res.status(400).json({ success: false, message: "Cart empty" });
 
-    const shop = new Shop({
-      type: type || "shop",
-      ownerName,
-      mobile,
-      shopName,
-      itemName,
-      price,
-      description,
-      imageUrl: imageUrls,
+    const order = new Order({
+      userId,
+      user: { name, phone },
+      shop: Object.keys(cart)[0],
+      items,
+      totalAmount: grandTotal,
+      deliveryCharge,
+      address: { name, phone, line1: address1, line2: address2 },
+      paymentMethod: paymentMode,
     });
 
-    await shop.save();
-    res.json({ success: true, message: "✅ Shop uploaded successfully", shop });
-  } catch (err) {
-    console.error("Upload Error:", err);
-    res.status(500).json({ success: false, message: "Failed to upload shop" });
+    await order.save();
+    res.json({ success: true, orderId: order._id, message: "Order saved!" });
+  } catch (e) {
+    console.error("SAVE ORDER ERROR:", e.message);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 app.get("/api/shops", async (req, res) => {
   try {
-    const shops = await Shop.find().sort({ date: -1 });
+    const shops = await Shop.find({ type: "shop" }).sort({ date: -1 }).lean();
     res.json({ success: true, shops });
-  } catch (err) {
-    console.error("Fetch Error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch shops" });
-  }
-});
-
-app.delete("/api/shop/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleted = await Shop.findByIdAndDelete(id);
-    if (!deleted) return res.status(404).json({ success: false, message: "Shop not found" });
-    res.json({ success: true, message: "🗑️ Shop deleted successfully" });
-  } catch (err) {
-    console.error("Delete Error:", err);
-    res.status(500).json({ success: false, message: "Failed to delete shop" });
+  } catch (e) {
+    console.error("SHOPS ERROR:", e.message);
+    res.status(500).json({ success: false, message: "Error" });
   }
 });
 
 // ==============================
-// Orders
+// DELIVERY PORTAL APIs (ONLY)
 // ==============================
-app.post("/api/order", async (req, res) => {
-  try {
-    const { userId, user, shop, items, totalAmount, deliveryCharge, address, paymentMethod } = req.body;
 
-    if (
-      !user?.name ||
-      !user?.phone ||
-      !items ||
-      Object.keys(items).length === 0 ||
-      !address?.line1 ||
-      !address?.location
-    ) {
-      return res.status(400).json({ success: false, message: "Incomplete order data or location missing" });
+app.get("/api/delivery-orders", async (req, res) => {
+  try {
+    const orders = await Order.find({ status: "pending" })
+      .sort({ date: -1 })
+      .lean();
+    res.json({ success: true, orders });
+  } catch (e) {
+    console.error("DELIVERY ORDERS ERROR:", e.message);
+    res.status(500).json({ success: false, message: "Error loading orders" });
+  }
+});
+
+app.post("/api/update-order-status", async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+    if (!orderId || !["delivered", "cancelled"].includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid data" });
     }
 
-    const orderItems = Object.keys(items).map((name) => ({
-      name,
-      price: 100,
-      quantity: items[name],
-    }));
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    ).lean();
 
-    const order = new Order({
-      userId: userId || null,
-      user,
-      shop: shop || "Unknown Shop",
-      items: orderItems,
-      totalAmount,
-      deliveryCharge,
-      address: {
-        ...address,
-        location: {
-          lat: parseFloat(address.location.split("Lat: ")[1].split(",")[0]),
-          lng: parseFloat(address.location.split("Lng: ")[1]),
-        },
-      },
-      paymentMethod: paymentMethod || "cash",
-      status: paymentMethod === "cash" ? "pending" : "unpaid",
-      date: new Date(),
-    });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    await order.save();
-    res.json({ success: true, message: "✅ Order placed successfully", order });
-  } catch (err) {
-    console.error("Order Save Error:", err);
-    res.status(500).json({ success: false, message: "Failed to save order" });
-  }
-});
-
-// Get orders by userId
-app.get("/api/orders/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const orders = await Order.find({ userId }).sort({ date: -1 });
-    res.json({ success: true, orders });
-  } catch (err) {
-    console.error("Fetch Orders Error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch orders" });
+    res.json({ success: true, order });
+  } catch (e) {
+    console.error("UPDATE STATUS ERROR:", e.message);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 // ==============================
-// Health & Frontend Routes
+// STATIC FILES
 // ==============================
-app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Server running fine 🚀" });
+
+app.use(express.static(path.join(__dirname)));
+
+app.get("/delivery", (req, res) => {
+  res.sendFile(path.join(__dirname, "delivery.html"));
 });
 
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
-app.get("/upload.html", (req, res) => res.sendFile(path.join(__dirname, "public", "upload.html")));
-app.get("/home.html", (req, res) => res.sendFile(path.join(__dirname, "public", "home.html")));
-app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
-
-// Catch-all
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // ==============================
-// Start Server
+// START
 // ==============================
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server LIVE on port ${PORT}`);
+  console.log(`Delivery Portal: http://localhost:${PORT}/delivery`);
+});

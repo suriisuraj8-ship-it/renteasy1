@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ChatPoint • Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0f172a 100%);
+      --card: rgba(25, 30, 70, 0.75);
+      --text: #e8f0ff;
+      --muted: #a8b8ff;
+      --accent: #ff6b35;
+      --green: #34d399;
+      --radius: 28px;
+      --glow: rgba(255, 107, 53, 0.3);
+      --input-bg: rgba(40, 50, 100, 0.6);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.2), transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(52, 211, 153, 0.15), transparent 60%);
+      z-index: -1;
+    }
+
+    .float-icon {
+      position: absolute;
+      opacity: 0.08;
+      pointer-events: none;
+      animation: drift 40s infinite linear;
+      z-index: 0;
+    }
+    @keyframes drift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(150px, -150px) rotate(360deg); }
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px; left: 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      background: rgba(255, 107, 53, 0.2);
+      padding: 10px 16px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    .back-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: translateY(-3px);
+    }
+
+    .container {
+      width: 90%;
+      max-width: 420px;
+      background: var(--card);
+      padding: 44px 32px;
+      border-radius: var(--radius);
+      text-align: center;
+      box-shadow: 
+        0 25px 70px rgba(0, 0, 0, 0.6),
+        0 0 50px var(--glow);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 107, 53, 0.25);
+      position: relative;
+      z-index: 2;
+      animation: floatIn 0.8s ease-out;
+    }
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .chat {
+      background: linear-gradient(90deg, var(--accent), #ff8a5b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .point { color: white; }
+
+    p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .input-group { position: relative; margin: 18px 0; }
+    input {
+      width: 100%;
+      padding: 18px 20px;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: var(--radius);
+      background: var(--input-bg);
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+    }
+    input::placeholder { color: rgba(255, 255, 255, 0.5); }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(255, 107, 53, 0.4),
+                  inset 0 0 20px rgba(255, 107, 53, 0.1);
+      transform: scale(1.02);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--accent), #ff8a5b);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.6s;
+    }
+    .btn:hover::before { left: 100%; }
+    .btn:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.5);
+    }
+
+    .switch {
+      margin-top: 24px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+    .switch a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .switch a:hover {
+      text-decoration: underline;
+      color: #ff8a5b;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Real-time Loading Overlay */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 15, 30, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #loadingOverlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .progress-container {
+      width: 80%;
+      max-width: 400px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #ff8a5b);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+
+    .timer {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="floatContainer"></div>
+  <a href="index.html" class="back-btn">Back</a>
+
+  <!-- Login Form -->
+  <div class="container" id="loginBox">
+    <h2><span class="chat">Chat</span><span class="point">Point</span></h2>
+    <p>Welcome back! Sign in to continue.</p>
+    
+    <div class="input-group">
+      <input type="tel" placeholder="Phone Number" id="loginPhone" pattern="[0-9]{10}" maxlength="10" required>
+    </div>
+    <div class="input-group">
+      <input type="password" placeholder="Password" id="loginPassword" required>
+    </div>
+    
+    <button class="btn" onclick="login()">Login</button>
+
+    <div class="switch">
+      Don’t have an account? <a href="#" onclick="toggleForm()">Sign up</a>
+    </div>
+  </div>
+
+  <!-- Signup Form -->
+  <div class="container hidden" id="signupBox">
+    <h2><span class="chat">Chat</span><span class="point">Point</span> Sign Up</h2>
+    <p>Create your account to get started.</p>
+    
+    <div class="input-group">
+      <input type="text" placeholder="Full Name" id="signupName" required>
+    </div>
+    <div class="input-group">
+      <input type="tel" placeholder="Phone Number" id="signupPhone" pattern="[0-9]{10}" maxlength="10" required>
+    </div>
+    <div class="input-group">
+      <input type="password" placeholder="Password" id="signupPassword" required>
+    </div>
+    
+    <button class="btn" onclick="signup()">Sign Up</button>
+
+    <div class="switch">
+      Already have an account? <a href="#" onclick="toggleForm()">Login</a>
+    </div>
+  </div>
+
+  <!-- Loading Overlay (Real-time) -->
+  <div id="loadingOverlay">
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="timer" id="timer">0s</div>
+  </div>
+
+  <script>
+    // Floating Icons
+    const icons = ["pizza-slice", "burger", "utensils", "coffee", "cookie", "ice-cream", "drumstick-bite"];
+    const colors = ["#ff6b35", "#34d399", "#a78bfa", "#60a5fa"];
+    for (let i = 0; i < 18; i++) {
+      const el = document.createElement("i");
+      el.className = `fas fa-${icons[Math.floor(Math.random() * icons.length)]} float-icon`;
+      el.style.top = Math.random() * 90 + "%";
+      el.style.left = Math.random() * 90 + "%";
+      el.style.fontSize = 20 + Math.random() * 35 + "px";
+      el.style.color = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDelay = Math.random() * 25 + "s";
+      document.getElementById("floatContainer").appendChild(el);
+    }
+
+    function toggleForm() {
+      document.getElementById('loginBox').classList.toggle('hidden');
+      document.getElementById('signupBox').classList.toggle('hidden');
+    }
+
+    const BASE_URL = "https://renteasy1.onrender.com";
+    let startTime, timerInterval;
+
+    // Show real-time loading
+    function showLoading() {
+      const overlay = document.getElementById("loadingOverlay");
+      const progress = document.getElementById("progressBar");
+      const timer = document.getElementById("timer");
+      overlay.classList.add("active");
+
+      startTime = Date.now();
+      let width = 0;
+
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        timer.textContent = elapsed + "s";
+        width = Math.min((elapsed / 10) * 100, 100);
+        progress.style.width = width + "%";
+      }, 100);
+    }
+
+    function hideLoading() {
+      clearInterval(timerInterval);
+      document.getElementById("loadingOverlay").classList.remove("active");
+    }
+
+    async function login() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      if (!phone || !password) return alert("Please fill all fields");
+
+      showLoading();
+
+      // Admin Fast Track
+      if (phone === "1234567890" && password === "admin") {
+        hideLoading();
+        window.location.href = "owner-portal.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BASE_URL}/api/user/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, password }),
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          hideLoading();
+          return alert(data.message || "Login failed");
+        }
+
+        // FIXED: Save to "chatpoint_user" (matches index.html)
+        localStorage.setItem("chatpoint_user", JSON.stringify(data.user));
+        hideLoading();
+        window.location.href = "index.html";
+
+      } catch (err) {
+        hideLoading();
+        alert("Network error. Try again.");
+      }
+    }
+
+    async function signup() {
+      const name = document.getElementById('signupName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      if (!name || !phone || !password) return alert("Please fill all fields");
+
+      showLoading();
+
+      try {
+        const res = await fetch(`${BASE_URL}/api/user/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, password }),
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          hideLoading();
+          return alert(data.message || "Signup failed");
+        }
+
+        hideLoading();
+        alert("Signup successful! Please login.");
+        toggleForm();
+
+      } catch (err) {
+        hideLoading();
+        alert("Network error. Try again.");
+      }
+    }
+  </script>
+</body>
+</html>

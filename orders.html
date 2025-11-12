@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders | Rent Easy</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --bg1: #071021;
+      --bg2: #0b2236;
+      --card: rgba(255,255,255,0.04);
+      --text: #eaf0f2;
+      --muted: #b8a78f;
+      --accent-fresh: #2ecf7b;
+      --accent-warm: #ff8a3d;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0a0f2c 0%, #0f1a38 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--accent-fresh);
+      font-weight: 700;
+    }
+    .login-prompt {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+      font-size: 18px;
+    }
+    .login-prompt a {
+      color: var(--accent-warm);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .order-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .order-id {
+      color: var(--accent-fresh);
+      font-size: 14px;
+    }
+    .order-date {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status.pending { background: #ffeb3b33; color: #ffc107; }
+    .status.delivered { background: #4caf5033; color: #4caf50; }
+    .status.cancelled { background: #f4433633; color: #f44336; }
+
+    .items-list {
+      margin: 12px 0;
+      padding-left: 8px;
+      border-left: 2px solid var(--accent-warm);
+    }
+    .item-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 4px 0;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.2);
+    }
+    .address {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #555;
+    }
+    .back-btn {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin: 30px auto 0;
+      padding: 12px;
+      background: linear-gradient(90deg, var(--accent-fresh), var(--accent-warm));
+      color: black;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .loading {
+      text-align: center;
+      color: #aaa;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>My Orders</h1>
+  <div id="ordersContainer"></div>
+</div>
+
+<script>
+  const USER_KEY = "chatpoint_user";
+  const API_BASE = typeof process !== "undefined" && process.env?.REACT_APP_API_URL
+    ? process.env.REACT_APP_API_URL
+    : "http://localhost:5000";
+
+  // Check login
+  function checkLogin() {
+    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+    if (!user || !user._id) {
+      document.getElementById("ordersContainer").innerHTML = `
+        <div class="login-prompt">
+          <h3>Please log in to view your orders</h3>
+          <p><a href="login.html">Go to Login</a></p>
+        </div>
+      `;
+      return null;
+    }
+    return user;
+  }
+
+  // Format date
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  // Render single order
+  function renderOrder(order) {
+    const itemsHtml = order.items.map(item => `
+      <div class="item-line">
+        <span>${item.name} × ${item.quantity}</span>
+        <span>₹${item.price * item.quantity}</span>
+      </div>
+    `).join("");
+
+    const statusClass = order.status.toLowerCase();
+
+    return `
+      <div class="order-card">
+        <div class="order-header">
+          <div class="order-id">Order #${order._id.slice(-6)}</div>
+          <div class="order-date">${formatDate(order.date)}</div>
+        </div>
+        <div class="status ${statusClass}">${order.status.toUpperCase()}</div>
+
+        <div class="items-list">
+          ${itemsHtml}
+        </div>
+
+        <div class="total-line">
+          <span>Grand Total</span>
+          <span style="color:var(--accent-fresh)">₹${order.totalAmount}</span>
+        </div>
+
+        <div class="address">
+          <strong>Delivery:</strong> ${order.address.name}, ${order.address.phone}<br>
+          ${order.address.line1}${order.address.line2 ? ', ' + order.address.line2 : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // Fetch and display orders
+  async function loadOrders() {
+    const user = checkLogin();
+    if (!user) return;
+
+    const container = document.getElementById("ordersContainer");
+    container.innerHTML = `<p class="loading">Loading your orders...</p>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/my-orders`, {
+        headers: { "x-user-id": user._id }
+      });
+
+      if (!res.ok) throw new Error("Failed to load orders");
+
+      const data = await res.json();
+      if (!data.success || !data.orders.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>No orders yet.</p>
+            <a href="index.html" class="back-btn">Shop Now</a>
+          </div>
+        `;
+        return;
+      }
+
+      const ordersHtml = data.orders.map(renderOrder).join("");
+      container.innerHTML = ordersHtml;
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = `
+        <div style="text-align:center;color:#ff6b6b;padding:20px;">
+          Failed to load orders. <a href="orders.html" style="color:var(--accent-warm)">Retry</a>
+        </div>
+      `;
+    }
+  }
+
+  // Auto-refresh every 30 seconds (to see delivery updates)
+  setInterval(() => {
+    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+    if (user && user._id) loadOrders();
+  }, 30000);
+
+  // Initial load
+  window.onload = loadOrders;
+</script>
+
+</body>
+</html>

@@ -1,173 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Payment | Chat Point</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<style>
-:root {
-  --bg:#0b0d2b;
-  --card:#131734;
-  --text:#f5f5f5;
-  --muted:#d6b48b;
-  --accent:#ffb366;
-  --radius:14px;
-  --input-bg:#1a1c50;
-}
-body { margin:0; font-family:"Poppins",sans-serif; background:var(--bg); color:var(--text);}
-header { display:flex; justify-content:center; align-items:center; padding:14px 20px; background:#0d0f3a; border-bottom:1px solid #1a1c50; position:sticky; top:0; z-index:50;}
-.brand { font-weight:700; font-size:22px; color:var(--text);}
-.brand .accent { color:var(--accent); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment | Chat Point</title>
 
-main { padding:16px; display:flex; flex-direction:column; gap:16px; }
-.summary { background:var(--card); padding:20px; border-radius:var(--radius); box-shadow:0 6px 15px rgba(0,0,0,0.5); display:flex; flex-direction:column; gap:14px; }
-.summary h3 { margin-top:0; color:var(--accent); border-bottom:1px solid #1a1c50; padding-bottom:6px; }
-.summary p { margin:2px 0; }
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-form { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
-form input { padding:12px; border-radius:var(--radius); border:none; background:var(--input-bg); color:var(--text); outline:none; font-weight:500; transition:0.2s; }
-form input:focus { background:#1f213d; box-shadow:0 0 0 2px var(--accent); }
-form button { padding:12px; border-radius:var(--radius); border:none; background:var(--accent); color:var(--bg); font-weight:700; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; }
-form button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(255,179,102,0.5); }
-.payment-methods { display:flex; gap:12px; margin-top:12px; }
-.payment-methods button { flex:1; text-align:center; }
-.location-required { color:#ff6b6b; font-size:12px; font-weight:600; }
-</style>
+  <style>
+    :root {--bg1:#071021;--bg2:#0b2236;--card:rgba(255,255,255,0.04);--text:#eaf0f2;--muted:#b8a78f;--accent-fresh:#2ecf7b;--accent-warm:#ff8a3d;--radius:18px;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#0a0f2c 0%,#0f1a38 100%);color:var(--text);min-height:100vh;padding:20px 20px 100px;}
+    .container{max-width:560px;margin:auto;background:var(--card);border-radius:var(--radius);padding:24px;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);}
+    h2{margin-bottom:16px;font-weight:700;color:var(--accent-fresh);}
+    label{display:block;margin-top:12px;font-weight:600;}
+    input[type=text],input[type=tel]{width:100%;padding:10px 12px;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:white;}
+    .radio-group{margin:16px 0;}
+    .radio-group label{display:inline;margin-right:20px;}
+    .shop-section{margin-top:20px;}
+    .shop-title{font-size:18px;font-weight:700;color:var(--accent-fresh);display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .item-line{display:flex;justify-content:space-between;font-size:15px;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.1);}
+    .total-line{display:flex;justify-content:space-between;font-weight:700;margin-top:8px;}
+    button.main-btn{margin-top:24px;width:100%;padding:14px;background:linear-gradient(90deg,var(--accent-fresh),var(--accent-warm));color:black;font-weight:800;border:none;border-radius:14px;cursor:pointer;font-size:16px;}
+    button.main-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .error-msg,.success-msg,.surprise-msg{font-size:14px;margin-top:8px;}
+    .error-msg{color:#ff6b6b;}
+    .success-msg{color:var(--accent-fresh);}
+    .surprise-msg{color:#ffd700;font-weight:700;text-align:center;margin:12px 0;font-size:16px;animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+    .login-prompt{text-align:center;padding:40px 20px;color:#aaa;}
+    .login-prompt a{color:var(--accent-warm);text-decoration:none;font-weight:600;}
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="brand"><span class="accent">Chat</span> Point</div>
-</header>
-
-<main>
-  <div class="summary">
-    <h3>Order Summary</h3>
-    <p id="totalItems">Total Items: 0</p>
-    <p id="totalPrice">Subtotal: ₹0</p>
-    <p id="deliveryCharge">Delivery: ₹0</p>
-    <p id="finalPrice">Total: ₹0</p>
-
-    <form id="paymentForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="text" id="phone" placeholder="Phone Number" required />
-      <input type="text" id="line1" placeholder="Address Line 1" required />
-      <input type="text" id="line2" placeholder="Address Line 2" required />
-      <input type="text" id="location" placeholder="Fetching your location..." readonly required />
-      <span class="location-required" id="locationWarning"></span>
-
-      <div class="payment-methods">
-        <button type="button" id="cashBtn">Cash on Delivery</button>
-        <button type="button" id="onlineBtn">Pay Online</button>
-      </div>
-    </form>
-  </div>
-</main>
+<div class="container" id="mainContainer"></div>
 
 <script>
-const cart = JSON.parse(localStorage.getItem("cartData")) || {};
-const shop = JSON.parse(localStorage.getItem("selectedShop")) || null;
+  // ---------- CONFIG ----------
+  const CART_KEY = "chatpoint_cart";
+  const USER_KEY = "chatpoint_user";
 
-const totalItemsEl = document.getElementById("totalItems");
-const totalPriceEl = document.getElementById("totalPrice");
-const deliveryChargeEl = document.getElementById("deliveryCharge");
-const finalPriceEl = document.getElementById("finalPrice");
-const locationInput = document.getElementById("location");
-const locationWarning = document.getElementById("locationWarning");
+  // ----> READ FROM .env (Render sets REACT_APP_API_URL) <----
+  const API_BASE =
+    typeof process !== "undefined" && process.env?.REACT_APP_API_URL
+      ? process.env.REACT_APP_API_URL
+      : "http://localhost:5000";   // fallback for local dev
 
-// Calculate totals
-function renderSummary() {
-  let totalItems = 0, totalPrice = 0;
-  Object.keys(cart).forEach(item => {
-    const qty = cart[item];
-    if(qty>0){
-      totalItems += qty;
-      totalPrice += 100 * qty; // Adjust item price if needed
+  // ---------- CHECK LOGIN ----------
+  function checkLogin() {
+    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+    if (!user || !user._id) {
+      document.getElementById("mainContainer").innerHTML = `
+        <div class="login-prompt">
+          <h3>Please log in to place an order</h3>
+          <p><a href="login.html">Go to Login</a></p>
+        </div>`;
+      return null;
     }
-  });
-  let delivery = 0;
-  if(totalPrice < 150) delivery = 29;
-  else if(totalPrice < 301) delivery = 25;
-  else if(totalPrice < 501) delivery = 20;
-
-  totalItemsEl.innerText = `Total Items: ${totalItems}`;
-  totalPriceEl.innerText = `Subtotal: ₹${totalPrice}`;
-  deliveryChargeEl.innerText = `Delivery: ₹${delivery}`;
-  finalPriceEl.innerText = `Total: ₹${totalPrice + delivery}`;
-}
-renderSummary();
-
-// Get location
-function getLocation() {
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos => {
-      locationInput.value = `Lat: ${pos.coords.latitude}, Lng: ${pos.coords.longitude}`;
-      locationWarning.innerText = "";
-    }, err => {
-      locationWarning.innerText = "Location is required to place order!";
-      locationInput.value = "";
-    });
-  } else {
-    locationWarning.innerText = "Geolocation not supported!";
+    return user;
   }
-}
-getLocation();
 
-// Validate form
-function validateForm() {
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const line1 = document.getElementById("line1").value.trim();
-  const line2 = document.getElementById("line2").value.trim();
-  const location = locationInput.value.trim();
+  // ---------- RENDER PAYMENT FORM ----------
+  function renderForm(user) {
+    document.getElementById("mainContainer").innerHTML = `
+      <h2>Payment Details</h2>
 
-  if(!name || !phone || !line1 || !line2 || !location){
-    alert("Please fill all address fields and enable location!");
-    return false;
+      <label>Name <span style="color:#ff6b6b">*</span></label>
+      <input type="text" id="name" placeholder="Enter your full name" value="${user.name || ''}" required />
+
+      <label>Phone <span style="color:#ff6b6b">*</span></label>
+      <input type="tel" id="phone" placeholder="Enter 10-digit phone number" value="${user.phone || ''}" required />
+
+      <label>Address Line 1 <span style="color:#ff6b6b">*</span></label>
+      <input type="text" id="address1" placeholder="House no., Street, Area" required />
+
+      <label>Address Line 2 (optional)</label>
+      <input type="text" id="address2" placeholder="Apartment, Landmark, etc." />
+
+      <div class="radio-group">
+        <label><input type="radio" name="paymentMode" value="COD" checked /> Cash on Delivery</label>
+        <label><input type="radio" name="paymentMode" value="Online" /> Online Payment</label>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+      <div id="surpriseMsg"></div>
+      <div id="cartContainer"></div>
+
+      <button class="main-btn" id="placeOrderBtn">Place Order</button>
+    `;
+
+    renderCart();
+    document.getElementById("placeOrderBtn").addEventListener("click", placeOrder);
   }
-  return { name, phone, line1, line2, location };
-}
 
-// Cash on Delivery
-document.getElementById("cashBtn").addEventListener("click", async () => {
-  const formData = validateForm();
-  if(!formData) return;
+  // ---------- CART DISPLAY ----------
+  function renderCart() {
+    const cart = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
+    const container = document.getElementById("cartContainer");
+    const surpriseMsg = document.getElementById("surpriseMsg");
+    container.innerHTML = "";
+    let overallTotal = 0;
 
-  const orderData = {
-    user: { name: formData.name, phone: formData.phone },
-    shop: shop ? shop.name : "Unknown Shop",
-    items: cart,
-    totalAmount: parseInt(finalPriceEl.innerText.replace("Total: ₹","")),
-    deliveryCharge: parseInt(deliveryChargeEl.innerText.replace("Delivery: ₹","")),
-    address: formData,
-    paymentMethod: "cash"
-  };
+    for (const shop in cart) {
+      let shopTotal = 0;
+      const sec = document.createElement("div"); sec.className = "shop-section";
+      const title = document.createElement("div"); title.className = "shop-title";
+      title.innerHTML = `<i class="fa fa-store"></i> ${shop}`; sec.appendChild(title);
 
-  try {
-    const res = await fetch("/api/order", {
-      method:"POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(orderData)
-    });
-    const data = await res.json();
-    if(data.success){
-      alert("Order placed successfully with Cash on Delivery!");
-      localStorage.removeItem("cartData");
-      window.location.href="home.html";
+      for (const name in cart[shop]) {
+        const it = cart[shop][name];
+        if (it.qty > 0) {
+          const line = document.createElement("div"); line.className = "item-line";
+          line.innerHTML = `<span>${name} × ${it.qty}</span>
+                            <span style="color:var(--accent-warm)">₹${it.price * it.qty}</span>`;
+          sec.appendChild(line);
+          shopTotal += it.price * it.qty;
+        }
+      }
+
+      if (shopTotal > 0) {
+        const sub = document.createElement("div"); sub.className = "total-line";
+        sub.innerHTML = `<span>Subtotal</span><span>₹${shopTotal}</span>`;
+        sec.appendChild(sub);
+        container.appendChild(sec);
+        overallTotal += shopTotal;
+      }
+    }
+
+    const deliveryCharge = overallTotal >= 50 ? 0 : 30;
+    const grandTotal = overallTotal + deliveryCharge;
+
+    if (overallTotal >= 50) {
+      surpriseMsg.innerHTML = `<div class="surprise-msg">Surprise! Orders above ₹50 get FREE DELIVERY!</div>`;
     } else {
-      alert(data.message || "Failed to place order");
+      surpriseMsg.innerHTML = '';
     }
-  } catch(err){
-    console.error(err);
-    alert("Server error");
-  }
-});
 
-// Online Payment placeholder
-document.getElementById("onlineBtn").addEventListener("click", () => {
-  alert("Online Payment integration coming soon!");
-});
+    const totals = document.createElement("div");
+    totals.style.marginTop = "20px";
+    totals.innerHTML = `
+      <div class="total-line"><span>Items total</span><span>₹${overallTotal}</span></div>
+      <div class="total-line">
+        <span>Delivery</span>
+        <span style="color:${deliveryCharge===0?'var(--accent-fresh)':'inherit'}">
+          ${deliveryCharge===0?'FREE':'₹'+deliveryCharge}
+        </span>
+      </div>
+      <div class="total-line" style="font-size:18px;color:var(--accent-fresh)">
+        <span>Grand Total</span><span>₹${grandTotal}</span>
+      </div>`;
+    container.appendChild(totals);
+  }
+
+  // ---------- FORM VALIDATION ----------
+  function validateForm() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const address1 = document.getElementById("address1").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    if (!name || !phone || !address1) {
+      errorMsg.textContent = "Please fill all required fields (*).";
+      return false;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      errorMsg.textContent = "Please enter a valid 10-digit phone number.";
+      return false;
+    }
+    errorMsg.textContent = "";
+    return true;
+  }
+
+  // ---------- SAVE ORDER ----------
+  async function placeOrder() {
+    if (!validateForm()) return;
+
+    const user = JSON.parse(localStorage.getItem(USER_KEY));
+    const paymentMode = document.querySelector('input[name="paymentMode"]:checked').value;
+    if (paymentMode !== "COD") {
+      alert("Online payment not available yet.");
+      return;
+    }
+
+    const cart = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
+    let itemsTotal = 0;
+    for (const shop in cart) {
+      for (const item in cart[shop]) {
+        itemsTotal += cart[shop][item].price * cart[shop][item].qty;
+      }
+    }
+    const deliveryCharge = itemsTotal >= 50 ? 0 : 30;
+    const grandTotal = itemsTotal + deliveryCharge;
+
+    const orderData = {
+      userId: user._id,
+      name: document.getElementById("name").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      address1: document.getElementById("address1").value.trim(),
+      address2: document.getElementById("address2").value.trim(),
+      cart,
+      itemsTotal,
+      deliveryCharge,
+      grandTotal,
+      paymentMode: "COD",
+      orderDate: new Date().toISOString()
+    };
+
+    const btn = document.getElementById("placeOrderBtn");
+    btn.disabled = true;
+    btn.textContent = "Saving Order...";
+
+    try {
+      const res = await fetch(`${API_BASE}/api/save-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Failed to save order – ${res.status} ${txt}`);
+      }
+
+      const data = await res.json();
+      document.getElementById("successMsg").textContent = "Order placed! ID: " + data.orderId;
+
+      localStorage.removeItem(CART_KEY);
+      setTimeout(() => window.location.href = "orders.html", 1500);
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById("errorMsg").textContent = err.message || "Failed to save order. Try again.";
+      btn.disabled = false;
+      btn.textContent = "Place Order";
+    }
+  }
+
+  // ---------- INIT ----------
+  window.onload = () => {
+    const user = checkLogin();
+    if (user) renderForm(user);
+  };
 </script>
 </body>
 </html>

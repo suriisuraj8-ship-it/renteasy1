@@ -1,180 +1,324 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>ChatPoint Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  * {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-  body {
-    background: linear-gradient(135deg,#ff6a00,#1e1e1e);
-    color:#fff;display:flex;justify-content:center;align-items:center;
-    height:100vh;overflow:hidden;
-  }
-  .container {
-    width:90%;max-width:360px;
-    background:rgba(255,255,255,0.1);
-    backdrop-filter:blur(15px);
-    padding:35px 25px;border-radius:20px;
-    text-align:center;
-    box-shadow:0 0 20px rgba(0,0,0,0.3);
-    animation:fadeIn 0.5s ease;
-  }
-  @keyframes fadeIn {from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
-  h2{
-    font-size:2rem;margin-bottom:10px;
-  }
-  h2 span.chat{color:#ff7b00;}
-  h2 span.point{color:#fff;}
-  p{color:#cbd5e1;margin-bottom:20px;font-size:0.9rem;}
-  input {
-    width:100%;padding:12px;margin:10px 0;
-    border:none;border-radius:12px;outline:none;
-    font-size:1rem;background:rgba(255,255,255,0.2);color:#fff;
-  }
-  input::placeholder{color:#d1d5db;}
-  .btn {
-    width:100%;background:#ff7b00;border:none;padding:12px;
-    border-radius:12px;color:#fff;font-size:1rem;cursor:pointer;
-    transition:all 0.3s;margin-top:10px;
-  }
-  .btn:hover{background:#ff8f1a;transform:scale(1.03);}
-  .switch{margin-top:15px;font-size:0.85rem;}
-  .switch a{color:#ffae42;text-decoration:none;}
-  .switch a:hover{text-decoration:underline;}
-  .back-btn{position:absolute;top:20px;left:20px;color:#fff;text-decoration:none;font-size:0.9rem;
-    background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:10px;}
-  .back-btn:active{background:rgba(255,255,255,0.25);}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Point | Food Shops</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: rgba(20, 25, 45, 0.7);
+      --text: #e0e7ff;
+      --accent: #ff6b35;
+      --glow: rgba(255, 107, 53, 0.3);
+      --radius: 18px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.12), transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(100, 200, 255, 0.08), transparent 50%);
+      z-index: -1;
+    }
+
+    header {
+      padding: 16px 20px;
+      background: rgba(15, 20, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand { font-weight: 800; font-size: 26px; }
+    .brand .chat { 
+      background: linear-gradient(90deg, #ff6b35, #ff8a5b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-btn {
+      font-size: 24px; cursor: pointer; padding: 10px;
+      background: rgba(255, 107, 53, 0.15);
+      border-radius: 50%; transition: 0.3s;
+    }
+    .nav-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
+
+    .sidebar {
+      position: fixed; top: 0; left: -100%; width: 280px; height: 100%;
+      background: rgba(15, 20, 40, 0.95); padding: 24px;
+      backdrop-filter: blur(16px); transition: 0.4s; z-index: 110;
+      border-right: 1px solid rgba(255, 107, 53, 0.2);
+    }
+    .sidebar.active { left: 0; }
+    .sidebar a {
+      display: block; padding: 14px 16px; margin-bottom: 8px;
+      color: #ccc; text-decoration: none; font-weight: 600;
+      border-radius: 12px; transition: 0.3s;
+    }
+    .sidebar a:hover { background: rgba(255, 107, 53, 0.25); color: #fff; transform: translateX(6px); }
+
+    .profile-section {
+      padding: 16px;
+      background: rgba(255, 107, 53, 0.15);
+      border-radius: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+      border: 1px dashed rgba(255, 107, 53, 0.4);
+    }
+    .profile-section .name {
+      font-weight: 700; font-size: 18px; color: #fff; margin-bottom: 4px;
+    }
+    .profile-section .phone {
+      font-size: 14px; color: #a8b8ff;
+    }
+    .profile-section .login-prompt {
+      font-size: 15px; color: #ff8a5b;
+    }
+    .profile-section .login-prompt a {
+      color: #ff6b35; text-decoration: underline;
+    }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: none; z-index: 105; backdrop-filter: blur(8px);
+    }
+    .overlay.active { display: block; }
+
+    main { padding: 20px; flex: 1; }
+    .search-bar {
+      max-width: 500px; margin: 0 auto 28px;
+      display: flex; border-radius: 50px; overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      background: rgba(30, 35, 60, 0.7);
+    }
+    .search-bar input {
+      flex: 1; padding: 16px 20px; border: none; background: transparent;
+      color: #fff; font-size: 16px; outline: none;
+    }
+    .search-bar input::placeholder { color: #888; }
+    .search-bar button {
+      padding: 0 28px; background: var(--accent); border: none;
+      color: #fff; font-weight: 700; cursor: pointer;
+      transition: 0.3s; font-size: 15px;
+    }
+    .search-bar button:hover {
+      background: #ff8a5b; transform: scale(1.05);
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 22px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: 0.5s;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    .card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 30px var(--glow);
+    }
+    .card img {
+      width: 100%; height: 180px; object-fit: cover;
+      transition: 0.5s;
+    }
+    .card:hover img { transform: scale(1.08); }
+    .info {
+      padding: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .shop-name {
+      font-weight: 800; font-size: 18px; color: var(--accent);
+    }
+    .rating {
+      color: #34d399; font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .desc {
+      padding: 0 16px 16px; font-size: 14px; color: #a8b8ff; line-height: 1.5;
+    }
+
+    footer {
+      text-align: center; padding: 16px; background: rgba(15, 20, 40, 0.8);
+      color: #666; font-size: 14px; border-top: 1px solid rgba(255, 107, 53, 0.2);
+    }
+
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
 
-<a href="index.html" class="back-btn">← Back</a>
+  <header>
+    <div class="nav-btn" id="navBtn"><i class="fas fa-bars"></i></div>
+    <div class="brand"><span class="chat">Chat</span>Point</div>
+  </header>
 
-<!-- LOGIN SCREEN -->
-<div class="container" id="loginBox">
-  <h2><span class="chat">Chat</span><span class="point">Point</span></h2>
-  <p>Welcome back! Sign in to continue chatting.</p>
-  <input type="tel" placeholder="Phone Number" id="loginPhone" pattern="[0-9]{10}" required>
-  <input type="password" placeholder="Password" id="loginPassword">
-  <button class="btn" onclick="login()">Login</button>
-
-  <div class="switch">
-    Don’t have an account? <a href="#" onclick="toggleForm()">Sign up</a>
+  <div class="sidebar" id="sidebar">
+    <div class="profile-section" id="profileSection"></div>
+    <a href="orders.html">My Orders</a>
+    <a href="tel:8088975913">Contact: 8088975913</a>
+    <a href="#" id="logout" style="display:none; color:#ff6b6b;">Logout</a>
   </div>
-</div>
+  <div class="overlay" id="overlay"></div>
 
-<!-- SIGNUP SCREEN -->
-<div class="container" id="signupBox" style="display:none;">
-  <h2><span class="chat">Chat</span><span class="point">Point</span> Sign Up</h2>
-  <p>Create your account to start chatting.</p>
-  <input type="text" placeholder="Full Name" id="signupName">
-  <input type="tel" placeholder="Phone Number" id="signupPhone" pattern="[0-9]{10}" required>
-  <input type="password" placeholder="Password" id="signupPassword">
-  <button class="btn" onclick="signup()">Sign Up</button>
+  <main>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search your favorite shop...">
+      <button onclick="searchShops()">Search</button>
+    </div>
 
-  <div class="switch">
-    Already have an account? <a href="#" onclick="toggleForm()">Login</a>
-  </div>
-</div>
+    <div class="grid" id="grid">
+      <!-- 8 Shops (unchanged) -->
+      <div class="card" onclick="openCart('7th Wonder (Cake)')">
+        <img src="images/7th-wonder.png" alt="7th Wonder">
+        <div class="info">
+          <div class="shop-name">7th Wonder (Cake)</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.8</div>
+        </div>
+        <div class="desc">Heavenly cakes & custom desserts.</div>
+      </div>
+      <div class="card" onclick="openCart('Sangambar Udpi-Hotel')">
+        <img src="images/sangambar-udpi-hotel.png" alt="Sangambar">
+        <div class="info">
+          <div class="shop-name">Sangambar Udpi-Hotel</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.6</div>
+        </div>
+        <div class="desc">Pure vegetarian South Indian meals.</div>
+      </div>
+      <div class="card" onclick="openCart('Nandini Grand Hotels')">
+        <img src="images/nandini-grand-hotels.png" alt="Nandini">
+        <div class="info">
+          <div class="shop-name">Nandini Grand Hotels</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.7</div>
+        </div>
+        <div class="desc">Crispy dosas with authentic flavors.</div>
+      </div>
+      <div class="card" onclick="openCart('Pizza Point')">
+        <img src="images/pizza-point.png" alt="Pizza Point">
+        <div class="info">
+          <div class="shop-name">Pizza Point</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.5</div>
+        </div>
+        <div class="desc">Loaded pizzas with fresh toppings.</div>
+      </div>
+      <div class="card" onclick="openCart('Fly Pizza')">
+        <img src="images/fly-pizza.png" alt="Fly Pizza">
+        <div class="info">
+          <div class="shop-name">Fly Pizza</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.6</div>
+        </div>
+        <div class="desc">100% veg pizzas, light & tasty.</div>
+      </div>
+      <div class="card" onclick="openCart('Mister Chef')">
+        <img src="images/mister-chef.png" alt="Mister Chef">
+        <div class="info">
+          <div class="shop-name">Mister Chef</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.7</div>
+        </div>
+        <div class="desc">Juicy burgers with secret sauce.</div>
+      </div>
+      <div class="card" onclick="openCart('Bekary')">
+        <img src="images/bekary.png" alt="Bekary">
+        <div class="info">
+          <div class="shop-name">Bekary</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.5</div>
+        </div>
+        <div class="desc">Fresh sandwiches & healthy bites.</div>
+      </div>
+      <div class="card" onclick="openCart('Dolphin')">
+        <img src="images/dolphin.png" alt="Dolphin">
+        <div class="info">
+          <div class="shop-name">Dolphin</div>
+          <div class="rating"><i class="fas fa-star"></i> 4.8</div>
+        </div>
+        <div class="desc">Tandoori, kebabs & non-veg specials.</div>
+      </div>
+    </div>
+  </main>
 
-<script>
-function toggleForm() {
-  const loginBox = document.getElementById('loginBox');
-  const signupBox = document.getElementById('signupBox');
-  const isLoginVisible = loginBox.style.display !== 'none';
-  loginBox.style.display = isLoginVisible ? 'none' : 'block';
-  signupBox.style.display = isLoginVisible ? 'block' : 'none';
-}
+  <footer>© 2025 Chat Point • Made with passion</footer>
 
-// ✅ Base API URL (unchanged)
-const BASE_URL = "https://renteasy1.onrender.com";
+  <script>
+    const USER_KEY = "chatpoint_user";
 
-// ✅ Login Function
-async function login() {
-  const phone = document.getElementById('loginPhone').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
+    document.getElementById("navBtn").onclick = () => {
+      document.getElementById("sidebar").classList.add("active");
+      document.getElementById("overlay").classList.add("active");
+    };
+    document.getElementById("overlay").onclick = () => {
+      document.getElementById("sidebar").classList.remove("active");
+      document.getElementById("overlay").classList.remove("active");
+    };
 
-  if (!phone || !password) {
-    alert("Please enter both phone number and password");
-    return;
-  }
+    function loadProfile() {
+      const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+      const profileEl = document.getElementById("profileSection");
+      const logoutBtn = document.getElementById("logout");
 
-  // ✅ Fixed login shortcuts
-  if (phone === "1111111111") {
-    if (password === "admin") {
-      window.location.href = "owner-select.html";
-      return;
-    } else if (password === "delivery") {
-      window.location.href = "delivery.html";
-      return;
-    } else {
-      window.location.href = "shop.html";
-      return;
+      if (user && user._id) {
+        profileEl.innerHTML = `
+          <i class="fas fa-user-circle" style="font-size:40px; color:#34d399; margin-bottom:8px;"></i>
+          <div class="name">${user.name || "User"}</div>
+          <div class="phone">${user.phone || "N/A"}</div>
+        `;
+        logoutBtn.style.display = "block";
+        logoutBtn.onclick = () => {
+          localStorage.removeItem(USER_KEY);
+          alert("Logged out!");
+          location.reload();
+        };
+      } else {
+        profileEl.innerHTML = `
+          <div class="login-prompt">
+            <i class="fas fa-user-circle" style="font-size:40px; color:#ff8a5b;"></i><br>
+            <a href="login.html">Login to see profile</a>
+          </div>
+        `;
+        logoutBtn.style.display = "none";
+      }
     }
-  }
 
-  // ✅ Normal backend login (unchanged)
-  try {
-    const res = await fetch(`${BASE_URL}/api/user/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, password }),
-    });
-
-    const data = await res.json();
-
-    if (!data.success) {
-      alert(data.message || "Login failed");
-      return;
+    function openCart(shop) {
+      location.href = `items.html?shop=${encodeURIComponent(shop)}`;
     }
 
-    localStorage.setItem("user", JSON.stringify(data.user));
-    window.location.href = "user-house.html";
-  } catch (err) {
-    console.error("Login Error:", err);
-    alert("Server error, please try again");
-  }
-}
-
-// ✅ Signup Function (unchanged)
-async function signup() {
-  const name = document.getElementById('signupName').value.trim();
-  const phone = document.getElementById('signupPhone').value.trim();
-  const password = document.getElementById('signupPassword').value.trim();
-
-  if (!name || !phone || !password) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${BASE_URL}/api/user/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, password }),
-    });
-
-    const data = await res.json();
-
-    if (!data.success) {
-      alert(data.message || "Signup failed");
-      return;
+    function searchShops() {
+      const term = document.getElementById("searchInput").value.trim().toLowerCase();
+      document.querySelectorAll(".card").forEach(card => {
+        const name = card.querySelector(".shop-name").textContent.toLowerCase();
+        card.style.display = name.includes(term) ? "" : "none";
+      });
     }
 
-    alert("Signup successful! Please log in.");
-    toggleForm();
-  } catch (err) {
-    console.error("Signup Error:", err);
-    alert("Server error, please try again");
-  }
-}
-</script>
+    history.pushState(null, null, location.href);
+    window.onpopstate = () => history.go(1);
 
+    window.onload = loadProfile;
+  </script>
 </body>
 </html>
-
-
-

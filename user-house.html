@@ -4,200 +4,274 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Available Shops | Chat Point</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     :root {
-      --bg:#07070a; --card:#0f1724; --muted:#a8b3c2;
-      --accent:#ff7b00; --green:#22c55e; --radius:14px;
+      --bg: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0f172a 100%);
+      --card: rgba(25, 30, 70, 0.65);
+      --text: #e8f0ff;
+      --muted: #a8b8ff;
+      --accent: #ff6b35;
+      --green: #34d399;
+      --radius: 24px;
+      --glow: rgba(255, 107, 53, 0.2);
     }
-    * {box-sizing:border-box;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin:0; font-family:"Poppins",sans-serif;
-      background:linear-gradient(180deg,#071226,var(--bg));
-      color:#fff; min-height:100vh; display:flex; flex-direction:column;
-      overflow-x:hidden;
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
     }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.15), transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(52, 211, 153, 0.12), transparent 60%);
+      z-index: -1;
+    }
+    .float-icon { position: absolute; opacity: 0.07; pointer-events: none; animation: drift 35s infinite linear; z-index: 0; }
+    @keyframes drift { 0%{transform:translate(0,0) rotate(0deg);} 100%{transform:translate(140px,-140px) rotate(360deg);} }
+
     header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:12px 16px; background:rgba(255,255,255,0.02);
-      backdrop-filter:blur(6px); border-bottom:1px solid rgba(255,255,255,0.03);
-      position:sticky; top:0; z-index:100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: rgba(15, 20, 60, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
-    .brand { font-weight:700; font-size:18px; }
-    .brand .chat { color:var(--accent); }
-    .brand .point { color:#fff; }
-    .nav-btn { font-size:18px; cursor:pointer; }
+    .brand { font-weight: 800; font-size: 26px; letter-spacing: 1px; }
+    .brand .chat { background: linear-gradient(90deg, var(--accent), #ff8a5b); -webkit-background-clip: text; -webkit-text.FILL-color: transparent; }
+    .nav-btn { font-size: 26px; cursor: pointer; padding: 8px; border-radius: 50%; background: rgba(255, 107, 53, 0.15); transition: all 0.3s; }
+    .nav-btn:hover { background: var(--accent); color: #000; }
+
     .sidebar {
-      position:fixed; top:0; left:-250px; width:250px; height:100%;
-      background:var(--card); padding:20px; display:flex; flex-direction:column;
-      gap:16px; transition:0.3s ease; z-index:110;
-      box-shadow:2px 0 10px rgba(0,0,0,0.7);
+      position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+      background: rgba(15, 20, 60, 0.95);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: 0.4s ease;
+      z-index: 110;
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 107, 53, 0.2);
+      box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
     }
-    .sidebar.active { left:0; }
-    .sidebar a { color:#fff; text-decoration:none; font-weight:600; font-size:16px; }
-    .sidebar .contact { color:var(--accent); }
-    .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:none; z-index:105; }
-    .overlay.active { display:block; }
+    .sidebar.active { left: 0; }
+    .sidebar a {
+      color: white; text-decoration: none; font-weight: 600; font-size: 17px;
+      padding: 14px 16px; border-radius: 16px; transition: all 0.3s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar a:hover { background: rgba(255, 107, 53, 0.2); transform: translateX(8px); }
+    .sidebar .contact { color: var(--accent); }
+    .overlay { position: fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;z-index:105;backdrop-filter:blur(8px); }
+    .overlay.active { display: block; }
 
-    .promo { padding:14px; display:flex; justify-content:center; }
+    .promo { padding: 20px; display: flex; justify-content: center; }
     .promo-slider {
-      width:95%; max-width:1100px; height:220px;
-      border-radius:14px; overflow:hidden;
-      background:#000; box-shadow:0 8px 30px rgba(2,6,23,0.6);
-      position:relative; border:1px solid rgba(255,255,255,0.03);
+      width: 95%; max-width: 1100px; height: 240px; border-radius: var(--radius);
+      overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,107,53,0.2);
     }
-    .promo-slider img { width:100%; height:100%; object-fit:cover; display:none; }
+    .promo-slider img { width:100%; height:100%; object-fit:cover; display:none; border-radius:var(--radius); }
     .promo-slider img.active { display:block; }
-    .promo-slider .dots {
-      position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
-      display:flex; gap:6px;
-    }
-    .promo-slider .dot {
-      width:8px;height:8px;border-radius:50%;
-      background:rgba(255,255,255,0.35); cursor:pointer;
-    }
-    .promo-slider .dot.active { background:var(--accent); }
+    .promo-slider .dots { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:10px; }
+    .promo-slider .dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,0.4); cursor:pointer; transition:all 0.3s; }
+    .promo-slider .dot.active { background:var(--accent); transform:scale(1.3); box-shadow:0 0 20px var(--accent); }
 
-    main { padding:14px; flex:1; }
-    .search-bar { width:100%; max-width:400px; margin:0 auto 16px; display:flex; }
+    main { padding: 20px; flex: 1; }
+    .search-bar {
+      width: 100%; max-width: 460px; margin: 0 auto 24px; display: flex;
+      border-radius: 50px; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
     .search-bar input {
-      flex:1; padding:10px 12px; border-radius:8px 0 0 8px; border:none;
-      outline:none; font-size:14px;
+      flex: 1; padding: 16px 20px; border: none;
+      background: rgba(40, 50, 100, 0.7); color: white; font-size: 16px; outline: none;
     }
+    .search-bar input::placeholder { color: #bbb; }
     .search-bar button {
-      padding:10px 12px; background:var(--accent); border:none; border-radius:0 8px 8px 0;
-      cursor:pointer; color:#fff; font-weight:600;
+      padding: 16px 24px; background: var(--accent); border: none; color: white; font-weight: 700;
+      cursor: pointer; transition: all 0.3s;
     }
-    .grid {
-      display:grid;
-      grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
-      gap:18px;
-    }
-    .card {
-      background: rgba(255,255,255,0.02);
-      border-radius:var(--radius);
-      overflow:hidden;
-      box-shadow:0 8px 20px rgba(2,6,23,0.6);
-      cursor:pointer;
-      transition:transform .2s ease;
-      display:flex; flex-direction:column;
-    }
-    .card:hover { transform:translateY(-5px); }
-    .card img { width:100%; height:180px; object-fit:cover; }
-    .info { padding:10px 12px; display:flex; justify-content:space-between; align-items:center; }
-    .shop-name { font-weight:700; color:var(--accent); font-size:16px; }
-    .rating { color:var(--green); font-weight:600; font-size:14px; }
-    .desc { font-size:13px; color:var(--muted); margin:4px 12px 10px; }
-    footer { text-align:center; padding:12px; color:#999; font-size:13px; }
+    .search-bar button:hover { background: #ff8a50; transform: scale(1.05); }
 
-    .placeholder { text-align:center; color:var(--muted); padding:40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 01fr)); gap: 24px; }
+    .card {
+      background: var(--card); border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: all 0.5s ease; border: 1px solid rgba(255, 107, 53, 0.2); backdrop-filter: blur(12px);
+    }
+    .card:hover { transform: translateY(-16px) scale(1.03); box-shadow: 0 30px 70px rgba(0,0,0,0.7), 0 0 40px var(--glow); }
+    .card img { width: 100%; height: 200px; object-fit: cover; transition: transform 0.5s ease; }
+    .card:hover img { transform: scale(1.08); }
+    .info { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .shop-name { font-weight: 800; font-size: 19px; color: var(--accent); }
+    .rating { color: var(--green); font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+    .desc { padding: 0 16px 16px; font-size: 14px; color: var(--muted); line-height: 1.5; }
+    .placeholder { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 18px; grid-column: 1 / -1; }
+    footer { text-align: center; padding: 20px; color: #777; font-size: 14px; background: rgba(0, 0, 0, 0.3); }
+
+    @media (max-width: 768px){.grid{grid-template-columns:1fr 1fr;}.search-bar{max-width:100%;}}
+    @media (max-width: 480px){.grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
+
+  <div id="floatContainer"></div>
+
   <header>
-    <div class="nav-btn" id="navBtn"><i class="fa fa-bars"></i></div>
-    <div class="brand"><span class="chat">Chat</span><span class="point">Point</span></div>
+    <div class="nav-btn" id="navBtn"><i class="fas fa-bars"></i></div>
+    <div class="brand"><span class="chat">Chat</span>Point</div>
   </header>
 
   <div class="sidebar" id="sidebar">
     <a href="#" id="logout">Logout</a>
-    <a href="#" id="myOrders">My Orders</a>
+    <a href="my-order.html" id="myOrders">My Orders</a>
     <a href="tel:8088975913" class="contact">Contact: 8088975913</a>
   </div>
   <div class="overlay" id="overlay"></div>
 
   <div class="promo">
     <div class="promo-slider" id="promoSlider">
-      <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?q=80&w=1600&auto=format&fit=crop" class="active" alt="promo1" />
-      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1600&auto=format&fit=crop" alt="promo2" />
-      <img src="https://images.unsplash.com/photo-1546069901-eacef0df6022?q=80&w=1600&auto=format&fit=crop" alt="promo3" />
+      <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=1600" class="active" alt="Delicious Pizza" />
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1600" alt="Fresh Food" />
+      <img src="https://images.unsplash.com/photo-1546069901-eacef0df6022?w=1600" alt="Happy Customers" />
       <div class="dots" id="promoDots"></div>
     </div>
   </div>
 
   <main>
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search shop name...">
+      <input type="text" id="searchInput" placeholder="Search your favorite shop...">
       <button onclick="searchShops()">Search</button>
     </div>
     <div id="grid" class="grid">
-      <div class="placeholder">Loading shops...</div>
+      <div class="placeholder">Loading delicious shops...</div>
     </div>
   </main>
 
-  <footer>© 2025 Chat Point</footer>
+  <footer>© 2025 Chat Point • Made with passion</footer>
 
   <script>
-    // Sidebar toggle
-    const navBtn = document.getElementById("navBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    navBtn.onclick = () => { sidebar.classList.add("active"); overlay.classList.add("active"); };
-    overlay.onclick = () => { sidebar.classList.remove("active"); overlay.classList.remove("active"); };
+    // === DISABLE BACK NAVIGATION ===
+    history.pushState(null, null, location.href);
+    window.onpopstate = function() { history.go(1); };
 
-    document.getElementById("logout").onclick = () => { alert("Logged out"); location.href="login.html"; };
+    // === FLOATING ICONS ===
+    const icons = ["pizza-slice","burger","ice-cream","coffee","cookie","utensils","drumstick-bite"];
+    const colors = ["#ff6b35","#34d399","#a78bfa","#60a5fa"];
+    for(let i=0;i<20;i++){
+      const el=document.createElement("i");
+      el.className=`fas fa-${icons[Math.floor(Math.random()*icons.length)]} float-icon`;
+      el.style.top=Math.random()*90+"%";
+      el.style.left=Math.random()*90+"%";
+      el.style.fontSize=20+Math.random()*30+"px";
+      el.style.color=colors[Math.floor(Math.random()*colors.length)];
+      el.style.animationDelay=Math.random()*20+"s";
+      document.getElementById("floatContainer").appendChild(el);
+    }
 
-    // Promo slider
+    // === SIDEBAR ===
+    const navBtn=document.getElementById("navBtn");
+    const sidebar=document.getElementById("sidebar");
+    const overlay=document.getElementById("overlay");
+    navBtn.onclick=()=>{sidebar.classList.add("active");overlay.classList.add("active");};
+    overlay.onclick=()=>{sidebar.classList.remove("active");overlay.classList.remove("active");};
+    document.getElementById("logout").onclick=()=>{alert("Logged out");location.href="login.html";};
+
+    // === PROMO SLIDER ===
     (function promoInit(){
-      const slider = document.getElementById("promoSlider");
-      const imgs = Array.from(slider.querySelectorAll("img"));
-      const dotsWrap = document.getElementById("promoDots");
+      const slider=document.getElementById("promoSlider");
+      const imgs=Array.from(slider.querySelectorAll("img"));
+      const dotsWrap=document.getElementById("promoDots");
       imgs.forEach((_,i)=>{
         const d=document.createElement("div");
-        d.className="dot"; if(i===0) d.classList.add("active");
-        d.onclick=()=>{ imgs.forEach(im=>im.classList.remove("active")); imgs[i].classList.add("active");
-          dotsWrap.querySelectorAll(".dot").forEach(dd=>dd.classList.remove("active")); d.classList.add("active"); };
+        d.className="dot";if(i===0)d.classList.add("active");
+        d.onclick=()=>{
+          imgs.forEach(im=>im.classList.remove("active"));imgs[i].classList.add("active");
+          dotsWrap.querySelectorAll(".dot").forEach(dd=>dd.classList.remove("active"));d.classList.add("active");
+        };
         dotsWrap.appendChild(d);
       });
       let idx=0;
-      setInterval(()=>{ idx=(idx+1)%imgs.length;
-        imgs.forEach(im=>im.classList.remove("active")); imgs[idx].classList.add("active");
+      setInterval(()=>{
+        idx=(idx+1)%imgs.length;
+        imgs.forEach(im=>im.classList.remove("active"));imgs[idx].classList.add("active");
         const dots=dotsWrap.querySelectorAll(".dot");
-        dots.forEach(dd=>dd.classList.remove("active")); dots[idx].classList.add("active");
+        dots.forEach(dd=>dd.classList.remove("active"));dots[idx].classList.add("active");
       },5000);
     })();
 
-    // Shops list
-    let shops = [
-      { shopName:"Fly Pizza", description:"Best pizzas in town", rating:4.9 },
-      { shopName:"Ayyngar", description:"Authentic South Indian food", rating:4.6 },
-      { shopName:"Mister Shef", description:"Delicious meals", rating:4.7 },
-      { shopName:"Udapi Hotel - Sangambar", description:"Traditional cuisine", rating:4.5 },
-      { shopName:"Dolphin", description:"Fresh seafood & more", rating:4.4 },
-      { shopName:"Pizza Point", description:"Tasty pizzas and more", rating:4.8 },
-      { shopName:"7 Wonder", description:"Fast food & snacks", rating:4.6 },
-      { shopName:"Star Hotel", description:"Great ambience & food", rating:4.7 },
-    ];
+    // ==============================================================
+    //  DYNAMIC SHOP LIST – FETCHED FROM BACKEND (/api/shops)
+    // ==============================================================
+    let shops = [];               // will be filled by fetch
+    const grid = document.getElementById("grid");
 
-    function shuffle(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]];} return array;}
+    async function loadShops() {
+      try {
+        const resp = await fetch("/api/shops");
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || "Failed");
+
+        // Transform DB → UI format
+        shops = data.shops.map(s => ({
+          shopName: s.shopName,
+          // Use first uploaded image (owner portal) or fallback
+          imgUrl: s.items?.[0]?.imageUrl?.[0] || "https://via.placeholder.com/400x200?text=No+Image",
+          description: s.ownerName ? `${s.ownerName}'s shop` : "Delicious meals",
+          rating: (4 + Math.round(Math.random()*1.5)*0.1).toFixed(1)   // random 4.0‑5.0
+        }));
+
+        renderShops(shops);
+      } catch (e) {
+        console.error(e);
+        grid.innerHTML = `<div class="placeholder">Failed to load shops. Please try again later.</div>`;
+      }
+    }
 
     function renderShops(list){
-      const grid = document.getElementById("grid");
       grid.innerHTML="";
+      if(!list.length){
+        grid.innerHTML='<div class="placeholder">No shops found.</div>';
+        return;
+      }
       list.forEach(shop=>{
         const card=document.createElement("div");
         card.className="card";
         card.innerHTML=`
-          <img src="https://via.placeholder.com/400x180" alt="${shop.shopName}">
-          <div class="info">
-            <div class="shop-name">${shop.shopName}</div>
-            <div class="rating"><i class="fa fa-star"></i> ${shop.rating}</div>
-          </div>
-          <div class="desc">${shop.description}</div>
-        `;
-        card.onclick = ()=>{ window.location.href=`items.html?shopName=${encodeURIComponent(shop.shopName)}`; };
+          <img src="${shop.imgUrl}" alt="${shop.shopName}">
+          <div class="info"><div class="shop-name">${shop.shopName}</div><div class="rating"><i class="fa fa-star"></i> ${shop.rating}</div></div>
+          <div class="desc">${shop.description}</div>`;
+        card.onclick=()=>{window.location.href=`items.html?shop=${encodeURIComponent(shop.shopName)}`;};
         grid.appendChild(card);
       });
     }
 
     function searchShops(){
-      const val = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = shops.filter(s=>s.shopName.toLowerCase().includes(val));
-      renderShops(filtered.length?filtered:shops);
+      const val=document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtered=shops.filter(s=>s.shopName.toLowerCase().includes(val));
+      renderShops(filtered);
     }
 
-    // Shuffle shops for randomness
-    renderShops(shuffle(shops));
+    // Start loading
+    loadShops();
   </script>
 </body>
 </html>
