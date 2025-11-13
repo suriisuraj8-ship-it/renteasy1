@@ -4,8 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chat Point | Food Shops</title>
+
+  <!-- PWA ESSENTIALS -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <meta name="theme-color" content="#ff6b35">
+
+  <!-- FONTS & ICONS -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
   <style>
     :root {
       --bg: #0f0f1a;
@@ -192,80 +200,106 @@
       <button onclick="searchShops()">Search</button>
     </div>
 
-    <div class="grid" id="grid">
-      <!-- 8 Shops (unchanged) -->
-      <div class="card" onclick="openCart('7th Wonder (Cake)')">
-        <img src="images/7th-wonder.png" alt="7th Wonder">
-        <div class="info">
-          <div class="shop-name">7th Wonder (Cake)</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.8</div>
-        </div>
-        <div class="desc">Heavenly cakes & custom desserts.</div>
-      </div>
-      <div class="card" onclick="openCart('Sangambar Udpi-Hotel')">
-        <img src="images/sangambar-udpi-hotel.png" alt="Sangambar">
-        <div class="info">
-          <div class="shop-name">Sangambar Udpi-Hotel</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.6</div>
-        </div>
-        <div class="desc">Pure vegetarian South Indian meals.</div>
-      </div>
-      <div class="card" onclick="openCart('Nandini Grand Hotels')">
-        <img src="images/nandini-grand-hotels.png" alt="Nandini">
-        <div class="info">
-          <div class="shop-name">Nandini Grand Hotels</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.7</div>
-        </div>
-        <div class="desc">Crispy dosas with authentic flavors.</div>
-      </div>
-      <div class="card" onclick="openCart('Pizza Point')">
-        <img src="images/pizza-point.png" alt="Pizza Point">
-        <div class="info">
-          <div class="shop-name">Pizza Point</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.5</div>
-        </div>
-        <div class="desc">Loaded pizzas with fresh toppings.</div>
-      </div>
-      <div class="card" onclick="openCart('Fly Pizza')">
-        <img src="images/fly-pizza.png" alt="Fly Pizza">
-        <div class="info">
-          <div class="shop-name">Fly Pizza</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.6</div>
-        </div>
-        <div class="desc">100% veg pizzas, light & tasty.</div>
-      </div>
-      <div class="card" onclick="openCart('Mister Chef')">
-        <img src="images/mister-chef.png" alt="Mister Chef">
-        <div class="info">
-          <div class="shop-name">Mister Chef</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.7</div>
-        </div>
-        <div class="desc">Juicy burgers with secret sauce.</div>
-      </div>
-      <div class="card" onclick="openCart('Bekary')">
-        <img src="images/bekary.png" alt="Bekary">
-        <div class="info">
-          <div class="shop-name">Bekary</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.5</div>
-        </div>
-        <div class="desc">Fresh sandwiches & healthy bites.</div>
-      </div>
-      <div class="card" onclick="openCart('Dolphin')">
-        <img src="images/dolphin.png" alt="Dolphin">
-        <div class="info">
-          <div class="shop-name">Dolphin</div>
-          <div class="rating"><i class="fas fa-star"></i> 4.8</div>
-        </div>
-        <div class="desc">Tandoori, kebabs & non-veg specials.</div>
-      </div>
-    </div>
+    <div class="grid" id="grid"></div>
   </main>
 
   <footer>© 2025 Chat Point • Made with passion</footer>
 
+  <!-- REAL JSON DATA -->
   <script>
-    const USER_KEY = "chatpoint_user";
+    const shops = [
+      {
+        name: "7th Wonder (Cake)",
+        img: "/images/7th-wonder.png",
+        rating: 4.8,
+        desc: "Heavenly cakes & custom desserts.",
+        items: ["Chocolate Cake", "Red Velvet", "Cupcakes", "Birthday Special"]
+      },
+      {
+        name: "Sangambar Udpi-Hotel",
+        img: "/images/sangambar-udpi-hotel.png",
+        rating: 4.6,
+        desc: "Pure vegetarian South Indian meals.",
+        items: ["Masala Dosa", "Idli Vada", "Puri Bhaji", "Filter Coffee"]
+      },
+      {
+        name: "Nandini Grand Hotels",
+        img: "/images/nandini-grand-hotels.png",
+        rating: 4.7,
+        desc: "Crispy dosas with authentic flavors.",
+        items: ["Plain Dosa", "Ghee Roast", "Onion Uttapam", "Podi Idli"]
+      },
+      {
+        name: "Pizza Point",
+        img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
+        rating: 4.5,
+        desc: "Loaded pizzas with fresh toppings.",
+        items: ["Margherita", "Pepperoni", "Veggie Supreme", "BBQ Chicken"]
+      },
+      {
+        name: "Fly Pizza",
+        img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500",
+        rating: 4.6,
+        desc: "100% veg pizzas, light & tasty.",
+        items: ["Paneer Tikka", "Corn & Cheese", "Farmhouse", "Veg Extravaganza"]
+      },
+      {
+        name: "Mister Chef",
+        img: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=500",
+        rating: 4.7,
+        desc: "Juicy burgers with secret sauce.",
+        items: ["Classic Burger", "Cheese Blast", "Veg Crunch", "Fries Combo"]
+      },
+      {
+        name: "Bekary",
+        img: "/images/Bekary.png",
+        rating: 4.5,
+        desc: "Fresh sandwiches & healthy bites.",
+        items: ["Veg Sandwich", "Grilled Cheese", "Club Sandwich", "Cold Coffee"]
+      },
+      {
+        name: "Dolphin",
+        img: "/images/dolphin.png",
+        rating: 4.8,
+        desc: "Tandoori, kebabs & non-veg specials.",
+        items: ["Chicken Tandoori", "Mutton Biryani", "Fish Fry", "Kebab Platter"]
+      }
+    ];
 
+    // Render Shops
+    function renderShops(filter = "") {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      shops
+        .filter(shop => shop.name.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(shop => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.onclick = () => openCart(shop.name, shop.items);
+          card.innerHTML = `
+            <img src="${shop.img}" alt="${shop.name}" onerror="this.src='https://via.placeholder.com/300x180?text=${shop.name}'">
+            <div class="info">
+              <div class="shop-name">${shop.name}</div>
+              <div class="rating"><i class="fas fa-star"></i> ${shop.rating}</div>
+            </div>
+            <div class="desc">${shop.desc}</div>
+          `;
+          grid.appendChild(card);
+        });
+    }
+
+    function openCart(shopName, items) {
+      localStorage.setItem("currentShop", JSON.stringify({ name: shopName, items }));
+      location.href = `items.html?shop=${encodeURIComponent(shopName)}`;
+    }
+
+    function searchShops() {
+      const term = document.getElementById("searchInput").value.trim();
+      renderShops(term);
+    }
+
+    // Sidebar & Profile
+    const USER_KEY = "chatpoint_user";
     document.getElementById("navBtn").onclick = () => {
       document.getElementById("sidebar").classList.add("active");
       document.getElementById("overlay").classList.add("active");
@@ -303,22 +337,15 @@
       }
     }
 
-    function openCart(shop) {
-      location.href = `items.html?shop=${encodeURIComponent(shop)}`;
-    }
-
-    function searchShops() {
-      const term = document.getElementById("searchInput").value.trim().toLowerCase();
-      document.querySelectorAll(".card").forEach(card => {
-        const name = card.querySelector(".shop-name").textContent.toLowerCase();
-        card.style.display = name.includes(term) ? "" : "none";
-      });
-    }
-
+    // Prevent back button
     history.pushState(null, null, location.href);
     window.onpopstate = () => history.go(1);
 
-    window.onload = loadProfile;
+    // Init
+    window.onload = () => {
+      renderShops();
+      loadProfile();
+    };
   </script>
 </body>
 </html>

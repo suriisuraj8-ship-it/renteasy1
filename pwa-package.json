@@ -1,0 +1,33 @@
+{
+  "name": "chatpoint",
+  "version": "1.0.0",
+  "description": "Order food from local shops",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html'",
+    "build": "echo 'PWA Ready'"
+  },
+  "keywords": ["food", "delivery", "pwa", "offline"],
+  "author": "Chat Point",
+  "license": "MIT",
+  "pwa": {
+    "name": "Chat Point",
+    "shortName": "ChatPoint",
+    "startUrl": "/index.html",
+    "display": "standalone",
+    "backgroundColor": "#0f0f1a",
+    "themeColor": "#ff6b35",
+    "icons": [
+      {
+        "src": "icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+}

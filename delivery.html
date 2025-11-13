@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delivery Portal | Rent Easy</title>
+  <title>Delivery Portal | Chat Point</title>
 
   <!-- ==== LOCAL SVG ICON SPRITE ==== -->
   <style>
@@ -124,25 +124,25 @@
       </button>
     </div>
 
-    <div id="loading" class="card text-center py-10 hidden">
+    <div id="loading" class="card text-center py-10">
       <div class="loader"></div>
       <p class="mt-3 text-gray-500">Loading orders…</p>
     </div>
 
     <div id="orders-container"></div>
 
-    <div id="empty" class="empty hidden">
+    <div id="empty" class="empty">
       <svg class="icon"><use href="#i-truck"/></svg>
       <p>No pending orders at the moment.</p>
     </div>
   </div>
 
-  <!-- ==== YOUR CUSTOM NOTIFICATION SOUND ==== -->
-  <audio id="notificationSound" src="/notification.mp3" preload="auto"></audio>
+  <!-- ==== YOUR RINGTONE.MP3 ==== -->
+  <audio id="notificationSound" src="ringtone.mp3" preload="auto"></audio>
 
   <script>
     /* ==== CONFIG ==== */
-    const API = '/api';
+    const API_BASE = window.location.origin;
     const CACHE_KEY = 'delivery-orders-cache';
     const POLL_MS = 30_000;
     const PAGE_SIZE = 50;
@@ -154,7 +154,7 @@
     const ordersContainer = $('#orders-container');
     const loadingEl       = $('#loading');
     const emptyEl         = $('#empty');
-    const sound           = $('#notificationSound');
+    const sound           = $('#notificationSound');  // RESTORED
     const logoutBtn       = $('#logoutBtn');
 
     /* ==== ICON HELPERS ==== */
@@ -194,6 +194,8 @@
           </button>
         </div>` : '';
 
+      const grandTotal = order.totalAmount.toFixed(2);
+
       return `
         <div class="card" data-id="${order._id}">
           <div class="flex justify-between items-start mb-3">
@@ -212,17 +214,9 @@
 
           <div class="mb-4 space-y-1">
             ${itemsHtml}
-            <div class="flex justify-between mt-3 font-medium text-gray-200">
-              <span>Subtotal</span>
-              <span>₹${order.totalAmount.toFixed(2)}</span>
-            </div>
-            <div class="flex justify-between text-sm text-gray-400">
-              <span>Delivery Charge</span>
-              <span>₹${(order.deliveryCharge ?? 30).toFixed(2)}</span>
-            </div>
             <div class="flex justify-between font-bold text-xl mt-2 text-white">
               <span>Grand Total</span>
-              <span>₹${(order.totalAmount + (order.deliveryCharge ?? 30)).toFixed(2)}</span>
+              <span>₹${grandTotal}</span>
             </div>
           </div>
 
@@ -240,7 +234,7 @@
       else ordersContainer.insertAdjacentHTML('beforeend', renderCard(order));
     };
 
-    /* ==== FETCH ORDERS + PLAY YOUR SOUND ON NEW ORDER ==== */
+    /* ==== FETCH ORDERS + PLAY ringtone.mp3 ON NEW ORDER ==== */
     const fetchOrders = async (useCache = true) => {
       if (useCache) {
         const cached = getCache();
@@ -253,7 +247,7 @@
 
       try {
         loadingEl.classList.remove('hidden');
-        const url = `${API}/delivery-orders?limit=${PAGE_SIZE}`;
+        const url = `${API_BASE}/api/delivery-orders?limit=${PAGE_SIZE}`;
         const res = await fetch(url, { cache: 'no-store' });
         const payload = await res.json();
 
@@ -272,12 +266,12 @@
         // Detect NEW orders
         const newOrders = payload.orders.filter(o => !lastOrderIds.has(o._id));
         if (newOrders.length > 0 && !useCache) {
-          // Play YOUR custom sound
+          // PLAY YOUR ringtone.mp3
           sound.currentTime = 0;
-          sound.play().catch(() => console.log("Sound blocked (user interaction needed)"));
-
-          // Optional visual alert
-          alert(`New Order! ${newOrders.length} new order(s)`);
+          sound.play().catch(() => {
+            console.log("Sound blocked – needs user interaction");
+            alert(`New Order! ${newOrders.length} new order(s)`);
+          });
         }
 
         renderAll(payload.orders);
@@ -312,7 +306,7 @@
       card.querySelector('.flex.gap-2')?.remove();
 
       try {
-        const res = await fetch(`${API}/update-order-status`, {
+        const res = await fetch(`${API_BASE}/api/update-order-status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, status: newStatus })

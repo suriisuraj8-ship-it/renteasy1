@@ -38,14 +38,12 @@
 <div class="container" id="mainContainer"></div>
 
 <script>
-  // ---------- CONFIG ----------
   const CART_KEY = "chatpoint_cart";
   const USER_KEY = "chatpoint_user";
 
-  // FIXED: Use window.location.origin (Render-safe)
+  // REAL BACKEND: Use same origin
   const API_BASE = window.location.origin;
 
-  // ---------- CHECK LOGIN ----------
   function checkLogin() {
     const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
     if (!user || !user._id) {
@@ -59,7 +57,6 @@
     return user;
   }
 
-  // ---------- RENDER PAYMENT FORM ----------
   function renderForm(user) {
     document.getElementById("mainContainer").innerHTML = `
       <h2>Payment Details</h2>
@@ -93,7 +90,6 @@
     document.getElementById("placeOrderBtn").addEventListener("click", placeOrder);
   }
 
-  // ---------- CART DISPLAY ----------
   function renderCart() {
     const cart = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
     const container = document.getElementById("cartContainer");
@@ -152,7 +148,6 @@
     container.appendChild(totals);
   }
 
-  // ---------- FORM VALIDATION ----------
   function validateForm() {
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
@@ -171,7 +166,6 @@
     return true;
   }
 
-  // ---------- SAVE ORDER ----------
   async function placeOrder() {
     if (!validateForm()) return;
 
@@ -226,7 +220,7 @@
       document.getElementById("successMsg").textContent = "Order placed! ID: " + data.orderId;
 
       localStorage.removeItem(CART_KEY);
-      setTimeout(() => window.location.href = "/orders.html", 1500);  // Render-safe
+      setTimeout(() => window.location.href = "orders.html", 1500);  // Real redirect
 
     } catch (err) {
       console.error(err);
@@ -236,7 +230,6 @@
     }
   }
 
-  // ---------- INIT ----------
   window.onload = () => {
     const user = checkLogin();
     if (user) renderForm(user);

@@ -80,7 +80,7 @@
   const CACHE_KEY  = 'my-orders-cache';
   const POLL_MS    = 30_000;
 
-  // FIXED: Use window.location.origin (Render-safe)
+  // FIXED: Use full origin (Render-safe)
   const API_BASE = window.location.origin;
 
   const $ = s => document.querySelector(s);
@@ -110,8 +110,9 @@
       </div>`).join('');
 
     const status = order.status.toLowerCase();
-    const delivery = order.deliveryCharge ?? 30;
-    const grand = (order.totalAmount + delivery).toFixed(2);
+
+    // FIXED: totalAmount already includes delivery
+    const grand = order.totalAmount.toFixed(2);
 
     return `
       <div class="order-card">
@@ -141,7 +142,7 @@
       container.innerHTML = `
         <div class="login-prompt">
           <h3>Please log in to view your orders</h3>
-          <p><a href="/login.html">Go to Login</a></p>
+          <p><a href="login.html">Go to Login</a></p>
         </div>`;
       return;
     }
@@ -163,19 +164,23 @@
       const text = await res.text();
 
       if (text.trim().startsWith('<!') || text.includes('<html')) {
-        throw new Error(`Server returned HTML. Check backend at ${API_BASE}/api/my-orders`);
+        throw new Error(`Backend not found. Check ${API_BASE}/api/my-orders`);
       }
 
       let data;
       try { data = JSON.parse(text); }
       catch (e) { throw new Error(`Invalid JSON: ${e.message}`); }
 
-      if (!data.success || !Array.isArray(data.orders) || data.orders.length === 0) {
+      if (!data.success || !Array.isArray(data.orders)) {
+        throw new Error(data.message || "No orders found");
+      }
+
+      if (data.orders.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <i class="fas fa-box-open"></i>
             <p>No orders yet.</p>
-            <a href="/index.html" class="back-btn">Shop Now</a>
+            <a href="index.html" class="back-btn">Shop Now</a>
           </div>`;
         cache.set(data);
         return;
@@ -191,7 +196,7 @@
           <strong>Failed to load orders</strong><br><br>
           ${err.message}
           <br><br>
-          <a href="/orders.html" style="color:var(--accent-warm);text-decoration:underline;">Retry</a>
+          <a href="orders.html" style="color:var(--accent-warm);text-decoration:underline;">Retry</a>
         </div>`;
     }
   };

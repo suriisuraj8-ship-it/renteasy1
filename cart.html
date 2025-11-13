@@ -76,7 +76,7 @@
     .shop-name {
       font-size: 20px; font-weight: 800; color: var(--accent);
       margin-bottom: 12px; padding-bottom: 8px;
-      border-bottom, border-bottom: 1px dashed rgba(255, 107, 53, 0.3);
+      border-bottom: 1px dashed rgba(255, 107, 53, 0.3);
     }
 
     .cart-item {
@@ -190,16 +190,38 @@
       renderCart();
     }
 
+    // Calculate totals (NO DELIVERY)
+    function calculateTotals() {
+      let items = 0, subtotal = 0;
+      for (const shop in cart) {
+        for (const item in cart[shop]) {
+          const { qty, price } = cart[shop][item];
+          items += qty;
+          subtotal += qty * price;
+        }
+      }
+      return { items, subtotal };
+    }
+
     // Render full cart
     function renderCart() {
       container.innerHTML = "";
-      let grandTotal = 0;
-      let hasItems = false;
+      const totals = calculateTotals();
+      let hasItems = totals.items > 0;
+
+      if (!hasItems) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <p>Your cart is empty.</p>
+            <p><a href="index.html">Continue Shopping</a></p>
+          </div>
+        `;
+        return;
+      }
 
       for (const shop in cart) {
         if (Object.keys(cart[shop]).length === 0) continue;
 
-        hasItems = true;
         let shopTotal = 0;
         const shopDiv = document.createElement("div");
         shopDiv.className = "shop-section";
@@ -213,7 +235,6 @@
           const { qty, price } = cart[shop][itemName];
           const itemTotal = qty * price;
           shopTotal += itemTotal;
-          grandTotal += itemTotal;
 
           const itemDiv = document.createElement("div");
           itemDiv.className = "cart-item";
@@ -243,31 +264,23 @@
         container.appendChild(shopDiv);
       }
 
-      // Grand Total + Buttons
-      if (hasItems) {
-        const totalDiv = document.createElement("div");
-        totalDiv.className = "total-section";
-        totalDiv.innerHTML = `
-          <div style="font-weight:800; font-size:18px;">Grand Total</div>
-          <div class="grand-total">₹${grandTotal}</div>
-        `;
-        container.appendChild(totalDiv);
+      // Grand Total (NO DELIVERY)
+      const totalDiv = document.createElement("div");
+      totalDiv.className = "total-section";
+      totalDiv.innerHTML = `
+        <div style="font-weight:800; font-size:18px;">Grand Total</div>
+        <div class="grand-total">₹${totals.subtotal}</div>
+      `;
+      container.appendChild(totalDiv);
 
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        actions.innerHTML = `
-          <button class="btn btn-clear" onclick="clearCart()">Clear Cart</button>
-          <button class="btn btn-payment" onclick="goToPayment()">Proceed to Payment</button>
-        `;
-        container.appendChild(actions);
-      } else {
-        container.innerHTML = `
-          <div class="empty-cart">
-            <p>Your cart is empty.</p>
-            <p><a href="index.html">Continue Shopping</a></p>
-          </div>
-        `;
-      }
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      actions.innerHTML = `
+        <button class="btn btn-clear" onclick="clearCart()">Clear Cart</button>
+        <button class="btn btn-payment" onclick="goToPayment()">Proceed to Payment</button>
+      `;
+      container.appendChild(actions);
     }
 
     // Clear entire cart
@@ -283,22 +296,8 @@
     function goToPayment() {
       const totals = calculateTotals();
       localStorage.setItem("orderItemsTotal", totals.items);
-      localStorage.setItem("orderGrandTotal", totals.grand);
-      window.location.href = "/payment.html";  // Render-safe
-    }
-
-    function calculateTotals() {
-      let items = 0, grand = 0;
-      for (const shop in cart) {
-        for (const item in cart[shop]) {
-          const { qty, price } = cart[shop][item];
-          items += qty;
-          grand += qty * price;
-        }
-      }
-      const delivery = 30;
-      grand += delivery;
-      return { items, grand };
+      localStorage.setItem("orderGrandTotal", totals.subtotal);
+      window.location.href = "payment.html";
     }
 
     // Init
