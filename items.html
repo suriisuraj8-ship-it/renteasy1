@@ -187,12 +187,11 @@
     const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
     const isLoggedIn = user && user._id;
 
-    // Show login banner if needed
     if (!isLoggedIn) {
       document.getElementById("loginBanner").style.display = "block";
     }
 
-    // ============== SHOP DATA + REAL IMAGES ==============
+    // ============== SHOP DATA (NO CHANGE) ==============
     const shopData = {
       "7th Wonder (Cake)": [
         { name: "Chocolate Truffle Cake", price: 350 },
@@ -240,7 +239,7 @@
     const cartBar = document.getElementById("cartBar");
     const cartText = document.getElementById("cartText");
 
-    // ============== CART LOGIC (GLOBAL) ==============
+    // ============== CART LOGIC (UNCHANGED) ==============
     let cart = JSON.parse(localStorage.getItem("chatpoint_cart")) || {};
 
     function saveCart() {
@@ -261,10 +260,7 @@
     }
 
     function changeQty(shop, itemName, price, delta) {
-      if (!isLoggedIn) {
-        alert("Please login to add items to cart.");
-        return;
-      }
+      if (!isLoggedIn) { alert("Please login to add items to cart."); return; }
       if (!cart[shop]) cart[shop] = {};
       if (!cart[shop][itemName]) cart[shop][itemName] = { qty: 0, price };
       cart[shop][itemName].qty = Math.max(0, cart[shop][itemName].qty + delta);
@@ -275,17 +271,20 @@
     }
 
     function openCartPage() {
-      if (!isLoggedIn) {
-        alert("Please login to view cart.");
-        window.location.href = "login.html";
-        return;
-      }
-      window.location.href = "cart.html";
+      if (!isLoggedIn) { alert("Please login to view cart."); window.location.href = "login.html"; return; }
+      window.location.href = "/cart.html";          // Render‑safe
     }
 
-    // ============== FORMAT IMAGE NAME ==============
+    // ============== IMAGE PATH (ONLY THIS FUNCTION CHANGED) ==============
     function getImagePath(itemName) {
-      return `images/${itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`;
+      // 1. Lowercase
+      // 2. Replace any non‑alphanumeric with dash
+      // 3. Force .jpg
+      const slug = itemName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')          // any sequence of non‑alphanum → single dash
+        .replace(/^-+|-+$/g, '');            // trim leading/trailing dashes
+      return `images/${slug}.jpg`;
     }
 
     // ============== RENDER ITEMS ==============
@@ -303,7 +302,6 @@
         const card = document.createElement("div");
         card.className = "item-card";
 
-        // Build quantity controls only if logged in
         const qtyHTML = isLoggedIn
           ? `
             <div class="quantity">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Orders | Rent Easy</title>
+  <title>My Orders | Chat Point</title>
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -20,122 +20,51 @@
       --accent-warm: #ff8a3d;
       --radius: 18px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: linear-gradient(135deg, #0a0f2c 0%, #0f1a38 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family:'Outfit',sans-serif;
+      background:linear-gradient(135deg,#0a0f2c 0%,#0f1a38 100%);
+      color:var(--text);
+      min-height:100vh;
+      padding:20px;
     }
-    .container {
-      max-width: 700px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 24px;
-      color: var(--accent-fresh);
-      font-weight: 700;
-    }
-    .login-prompt {
-      text-align: center;
-      padding: 60px 20px;
-      color: #aaa;
-      font-size: 18px;
-    }
-    .login-prompt a {
-      color: var(--accent-warm);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .order-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
-    }
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-    .order-id {
-      color: var(--accent-fresh);
-      font-size: 14px;
-    }
-    .order-date {
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .status {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .status.pending { background: #ffeb3b33; color: #ffc107; }
-    .status.delivered { background: #4caf5033; color: #4caf50; }
-    .status.cancelled { background: #f4433633; color: #f44336; }
+    .container{max-width:700px;margin:auto;}
+    h1{text-align:center;margin-bottom:24px;color:var(--accent-fresh);font-weight:700;}
 
-    .items-list {
-      margin: 12px 0;
-      padding-left: 8px;
-      border-left: 2px solid var(--accent-warm);
+    .login-prompt{text-align:center;padding:60px 20px;color:#aaa;font-size:18px;}
+    .login-prompt a{color:var(--accent-warm);text-decoration:none;font-weight:600;}
+
+    .order-card{
+      background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px;
+      border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);
+      transition:transform .2s ease;
     }
-    .item-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      padding: 4px 0;
+    .order-card:hover{transform:translateY(-2px);}
+    .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:600;}
+    .order-id{color:var(--accent-fresh);font-size:14px;}
+    .order-date{font-size:13px;color:var(--muted);}
+    .status{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+    .status.pending{background:#ffeb3b33;color:#ffc107;}
+    .status.delivered{background:#4caf5033;color:#4caf50;}
+    .status.cancelled{background:#f4433633;color:#f44336;}
+
+    .items-list{margin:12px 0;padding-left:8px;border-left:2px solid var(--accent-warm);}
+    .item-line{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
+    .total-line{display:flex;justify-content:space-between;font-weight:700;margin-top:10px;
+                padding-top:10px;border-top:1px dashed rgba(255,255,255,.2);}
+
+    .address{margin-top:12px;font-size:14px;color:var(--muted);}
+
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:18px;}
+    .empty-state i{font-size:48px;margin-bottom:16px;color:#555;}
+    .back-btn{
+      display:block;width:100%;max-width:300px;margin:30px auto 0;
+      padding:12px;background:linear-gradient(90deg,var(--accent-fresh),var(--accent-warm));
+      color:#000;font-weight:700;text-align:center;border-radius:14px;
+      text-decoration:none;font-size:16px;
     }
-    .total-line {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed rgba(255,255,255,.2);
-    }
-    .address {
-      margin-top: 12px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-      font-size: 18px;
-    }
-    .empty-state i {
-      font-size: 48px;
-      margin-bottom: 16px;
-      color: #555;
-    }
-    .back-btn {
-      display: block;
-      width: 100%;
-      max-width: 300px;
-      margin: 30px auto 0;
-      padding: 12px;
-      background: linear-gradient(90deg, var(--accent-fresh), var(--accent-warm));
-      color: black;
-      font-weight: 700;
-      text-align: center;
-      border-radius: 14px;
-      text-decoration: none;
-      font-size: 16px;
-    }
-    .loading {
-      text-align: center;
-      color: #aaa;
-      padding: 20px;
-    }
+    .loading{text-align:center;color:#aaa;padding:20px;}
+    .error-box{background:#7f1d1d33;color:#fca5a5;padding:16px;border-radius:12px;margin:16px 0;font-size:14px;}
   </style>
 </head>
 <body>
@@ -146,48 +75,43 @@
 </div>
 
 <script>
-  const USER_KEY = "chatpoint_user";
-  const API_BASE = typeof process !== "undefined" && process.env?.REACT_APP_API_URL
-    ? process.env.REACT_APP_API_URL
-    : "http://localhost:5000";
+  /* ==================== CONFIG ==================== */
+  const USER_KEY   = 'chatpoint_user';
+  const CACHE_KEY  = 'my-orders-cache';
+  const POLL_MS    = 30_000;
 
-  // Check login
-  function checkLogin() {
-    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
-    if (!user || !user._id) {
-      document.getElementById("ordersContainer").innerHTML = `
-        <div class="login-prompt">
-          <h3>Please log in to view your orders</h3>
-          <p><a href="login.html">Go to Login</a></p>
-        </div>
-      `;
-      return null;
-    }
-    return user;
-  }
+  // FIXED: Use window.location.origin (Render-safe)
+  const API_BASE = window.location.origin;
 
-  // Format date
-  function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
+  const $ = s => document.querySelector(s);
 
-  // Render single order
-  function renderOrder(order) {
-    const itemsHtml = order.items.map(item => `
+  /* ==================== HELPERS ==================== */
+  const getUser = () => {
+    try { return JSON.parse(localStorage.getItem(USER_KEY)); }
+    catch { return null; }
+  };
+
+  const formatDate = d => new Date(d).toLocaleDateString('en-IN', {
+    day:'2-digit', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  const cache = {
+    get: () => { try { return JSON.parse(localStorage.getItem(CACHE_KEY)); } catch { return null; } },
+    set: data => { try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch {} }
+  };
+
+  /* ==================== RENDER ORDER ==================== */
+  const renderOrder = order => {
+    const itemsHtml = order.items.map(i => `
       <div class="item-line">
-        <span>${item.name} × ${item.quantity}</span>
-        <span>₹${item.price * item.quantity}</span>
-      </div>
-    `).join("");
+        <span>${i.name} × ${i.quantity}</span>
+        <span>₹${(i.price * i.quantity).toFixed(2)}</span>
+      </div>`).join('');
 
-    const statusClass = order.status.toLowerCase();
+    const status = order.status.toLowerCase();
+    const delivery = order.deliveryCharge ?? 30;
+    const grand = (order.totalAmount + delivery).toFixed(2);
 
     return `
       <div class="order-card">
@@ -195,73 +119,97 @@
           <div class="order-id">Order #${order._id.slice(-6)}</div>
           <div class="order-date">${formatDate(order.date)}</div>
         </div>
-        <div class="status ${statusClass}">${order.status.toUpperCase()}</div>
-
-        <div class="items-list">
-          ${itemsHtml}
-        </div>
-
+        <div class="status ${status}">${order.status.toUpperCase()}</div>
+        <div class="items-list">${itemsHtml}</div>
         <div class="total-line">
           <span>Grand Total</span>
-          <span style="color:var(--accent-fresh)">₹${order.totalAmount}</span>
+          <span style="color:var(--accent-fresh)">₹${grand}</span>
         </div>
-
         <div class="address">
           <strong>Delivery:</strong> ${order.address.name}, ${order.address.phone}<br>
           ${order.address.line1}${order.address.line2 ? ', ' + order.address.line2 : ''}
         </div>
-      </div>
-    `;
-  }
+      </div>`;
+  };
 
-  // Fetch and display orders
-  async function loadOrders() {
-    const user = checkLogin();
-    if (!user) return;
+  /* ==================== FETCH ORDERS ==================== */
+  const fetchOrders = async (useCache = true) => {
+    const container = $('#ordersContainer');
+    const user = getUser();
 
-    const container = document.getElementById("ordersContainer");
-    container.innerHTML = `<p class="loading">Loading your orders...</p>`;
+    if (!user?._id) {
+      container.innerHTML = `
+        <div class="login-prompt">
+          <h3>Please log in to view your orders</h3>
+          <p><a href="/login.html">Go to Login</a></p>
+        </div>`;
+      return;
+    }
+
+    if (useCache) {
+      const cached = cache.get();
+      if (cached?.orders?.length) {
+        container.innerHTML = cached.orders.map(renderOrder).join('');
+      } else {
+        container.innerHTML = `<p class="loading"><i class="fas fa-spinner fa-spin"></i> Loading orders…</p>`;
+      }
+    }
 
     try {
       const res = await fetch(`${API_BASE}/api/my-orders`, {
-        headers: { "x-user-id": user._id }
+        headers: { 'x-user-id': user._id }
       });
 
-      if (!res.ok) throw new Error("Failed to load orders");
+      const text = await res.text();
 
-      const data = await res.json();
-      if (!data.success || !data.orders.length) {
+      if (text.trim().startsWith('<!') || text.includes('<html')) {
+        throw new Error(`Server returned HTML. Check backend at ${API_BASE}/api/my-orders`);
+      }
+
+      let data;
+      try { data = JSON.parse(text); }
+      catch (e) { throw new Error(`Invalid JSON: ${e.message}`); }
+
+      if (!data.success || !Array.isArray(data.orders) || data.orders.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <i class="fas fa-box-open"></i>
             <p>No orders yet.</p>
-            <a href="index.html" class="back-btn">Shop Now</a>
-          </div>
-        `;
+            <a href="/index.html" class="back-btn">Shop Now</a>
+          </div>`;
+        cache.set(data);
         return;
       }
 
-      const ordersHtml = data.orders.map(renderOrder).join("");
-      container.innerHTML = ordersHtml;
+      container.innerHTML = data.orders.map(renderOrder).join('');
+      cache.set(data);
 
     } catch (err) {
-      console.error(err);
+      console.error('Fetch error:', err);
       container.innerHTML = `
-        <div style="text-align:center;color:#ff6b6b;padding:20px;">
-          Failed to load orders. <a href="orders.html" style="color:var(--accent-warm)">Retry</a>
-        </div>
-      `;
+        <div class="error-box">
+          <strong>Failed to load orders</strong><br><br>
+          ${err.message}
+          <br><br>
+          <a href="/orders.html" style="color:var(--accent-warm);text-decoration:underline;">Retry</a>
+        </div>`;
     }
-  }
+  };
 
-  // Auto-refresh every 30 seconds (to see delivery updates)
-  setInterval(() => {
-    const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
-    if (user && user._id) loadOrders();
-  }, 30000);
+  /* ==================== POLLING ==================== */
+  let pollTimer;
+  const startPolling = () => {
+    clearInterval(pollTimer);
+    pollTimer = setInterval(() => {
+      if (getUser()?._id) fetchOrders(false);
+    }, POLL_MS);
+  };
 
-  // Initial load
-  window.onload = loadOrders;
+  /* ==================== START ==================== */
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchOrders(true);
+    startPolling();
+  });
 </script>
 
 </body>

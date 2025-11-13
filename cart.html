@@ -76,7 +76,7 @@
     .shop-name {
       font-size: 20px; font-weight: 800; color: var(--accent);
       margin-bottom: 12px; padding-bottom: 8px;
-      border-bottom: 1px dashed rgba(255, 107, 53, 0.3);
+      border-bottom, border-bottom: 1px dashed rgba(255, 107, 53, 0.3);
     }
 
     .cart-item {
@@ -284,7 +284,7 @@
       const totals = calculateTotals();
       localStorage.setItem("orderItemsTotal", totals.items);
       localStorage.setItem("orderGrandTotal", totals.grand);
-      window.location.href = "payment.html";
+      window.location.href = "/payment.html";  // Render-safe
     }
 
     function calculateTotals() {

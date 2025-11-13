@@ -140,7 +140,7 @@ app.get("/api/shops", async (req, res) => {
 });
 
 // ==============================
-// DELIVERY PORTAL APIs (ONLY)
+// DELIVERY PORTAL APIs
 // ==============================
 
 app.get("/api/delivery-orders", async (req, res) => {
@@ -178,7 +178,29 @@ app.post("/api/update-order-status", async (req, res) => {
 });
 
 // ==============================
-// STATIC FILES
+// USER – MY ORDERS API (MUST BE BEFORE STATIC FILES)
+// ==============================
+
+app.get("/api/my-orders", async (req, res) => {
+  try {
+    const userId = req.headers["x-user-id"];
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "Missing x-user-id header" });
+    }
+
+    const orders = await Order.find({ userId })
+      .sort({ date: -1 })
+      .lean();
+
+    res.json({ success: true, orders });
+  } catch (e) {
+    console.error("MY-ORDERS ERROR:", e.message);
+    res.status(500).json({ success: false, message: "Error loading orders" });
+  }
+});
+
+// ==============================
+// STATIC FILES (MUST BE AFTER ALL API ROUTES)
 // ==============================
 
 app.use(express.static(path.join(__dirname)));
@@ -187,6 +209,7 @@ app.get("/delivery", (req, res) => {
   res.sendFile(path.join(__dirname, "delivery.html"));
 });
 
+// Catch-all route – MUST BE LAST
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -197,4 +220,5 @@ app.get("*", (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server LIVE on port ${PORT}`);
   console.log(`Delivery Portal: http://localhost:${PORT}/delivery`);
+  console.log(`My Orders: http://localhost:${PORT}/orders.html`);
 });

@@ -5,200 +5,353 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Delivery Portal | Rent Easy</title>
 
-  <!-- ==== LOCAL SVG ICON SPRITE (NO CDN, NO TRACKING) ==== -->
+  <!-- ==== LOCAL SVG ICON SPRITE ==== -->
   <style>
-    /* Hide the sprite from view */
     #icon-sprite { display:none; }
-
-    /* Use the sprite with <svg><use/></svg> */
     .icon { width:1.2em; height:1.2em; fill:currentColor; vertical-align:-0.125em; }
   </style>
 
-  <!-- ==== BASIC STYLES (Tailwind‑like, but pure CSS) ==== -->
+  <!-- ==== DARK THEME + FAST UI STYLES ==== -->
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f4f6f9;color:#1a202c;line-height:1.5;}
-    .container{max-width:1200px;margin:auto;padding:1rem;}
-    .card{background:#fff;border-radius:0.5rem;box-shadow:0 2px 6px rgba(0,0,0,.07);padding:1.5rem;margin-bottom:1rem;}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border:none;border-radius:.375rem;font-weight:600;cursor:pointer;transition:all .2s;}
-    .btn-primary{background:#2563eb;color:#fff;}
-    .btn-primary:hover{background:#1d4ed8;}
-    .btn-success{background:#10b981;color:#fff;}
-    .btn-success:hover{background:#059669;}
-    .btn-danger{background:#ef4444;color:#fff;}
-    .btn-danger:hover{background:#dc2626;}
-    .badge{display:inline-block;padding:.25rem .5rem;font-size:.75rem;border-radius:.25rem;}
-    .badge-pending{background:#fef3c7;color:#92400e;}
-    .badge-delivered{background:#d1fae5;color:#065f46;}
-    .badge-cancelled{background:#fee2e2;color:#991b1b;}
-    .table{width:100%;border-collapse:collapse;}
-    .table th,.table td{padding:.75rem;vertical-align:middle;text-align:left;}
-    .table th{background:#f1f5f9;font-weight:600;}
-    .table tbody tr:hover{background:#f9fafb;}
-    .loader{border:4px solid #f3f3f3;border-top:4px solid #2563eb;border-radius:50%;width:2rem;height:2rem;animation:spin 1s linear infinite;margin:auto;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-    .empty{text-align:center;color:#6b7280;margin:2rem 0;}
+    
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .container { max-width: 1200px; margin: auto; padding: 1rem; position: relative; }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+    }
+
+    .logout-btn {
+      background: var(--danger); color: white; padding: .5rem 1rem;
+      border: none; border-radius: .5rem; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: .4rem; font-size: .9rem;
+    }
+    .logout-btn:hover { background: #dc2626; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border: none; border-radius: .5rem;
+      font-weight: 600; cursor: pointer; font-size: .9rem;
+      transition: all .2s ease;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .badge {
+      display: inline-block; padding: .25rem .6rem; font-size: .75rem;
+      border-radius: .375rem; font-weight: 600;
+    }
+    .badge-pending { background: #451a03; color: #fcd34d; }
+    .badge-delivered { background: #064e3b; color: #6ee7b7; }
+    .badge-cancelled { background: #7f1d1d; color: #fca5a5; }
+
+    .loader {
+      border: 4px solid #1e293b;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%; width: 2.5rem; height: 2.5rem;
+      animation: spin 1s linear infinite; margin: auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty { text-align:center; color: var(--text-muted); margin:3rem 0; }
+    .empty svg { width:3rem; height:3rem; opacity:.3; margin-bottom:.5rem; }
+
+    h1 { font-size: 1.75rem; font-weight: 700; display:flex; align-items:center; gap:.5rem; }
+    h1 svg { color: var(--primary); }
+
+    .text-sm { font-size: .875rem; }
+    .text-xs { font-size: .75rem; }
+    .font-medium { font-weight: 500; }
+    .font-bold { font-weight: 700; }
+    .text-gray-500 { color: var(--text-muted); }
+    .text-red-600 { color: #fca5a5; }
   </style>
 </head>
 
 <body>
-  <!-- ==== ICON SPRITE (ALL ICONS YOU NEED) ==== -->
+  <!-- ==== ICON SPRITE ==== -->
   <svg id="icon-sprite" xmlns="http://www.w3.org/2000/svg">
     <symbol id="i-truck" viewBox="0 0 24 24"><path d="M18 7h-3V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 0 5 0h3a2.5 2.5 0 0 0 5 0H21a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zm-2 9h-2v-2h2v2zm-5 0h-2v-2h2v2zm-5 0H4V9h2v7zm0-9H4V5h2v3zm5 0H9V5h2v3zm5 0h-2V5h2v3z"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
     <symbol id="i-times" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M16 13v-2H7V9l-5 3 5 3v-2zm5-8h-9c-1.1 0-2 .9-2 2v2h2V7h9v10h-9v-2H8v2c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></symbol>
   </svg>
 
   <div class="container">
-    <h1 class="text-2xl font-bold mb-4 flex items-center gap-2">
-      <svg class="icon"><use href="#i-truck"/></svg> Delivery Portal
-    </h1>
+    <div class="header">
+      <h1>
+        <svg class="icon"><use href="#i-truck"/></svg> Delivery Portal
+      </h1>
+      <button id="logoutBtn" class="logout-btn">
+        <svg class="icon"><use href="#i-logout"/></svg> Logout
+      </button>
+    </div>
 
-    <div id="loading" class="card text-center py-8 hidden">
+    <div id="loading" class="card text-center py-10 hidden">
       <div class="loader"></div>
-      <p class="mt-2 text-gray-600">Loading orders…</p>
+      <p class="mt-3 text-gray-500">Loading orders…</p>
     </div>
 
     <div id="orders-container"></div>
 
     <div id="empty" class="empty hidden">
-      <svg class="icon w-12 h-12 mx-auto mb-2 text-gray-400"><use href="#i-truck"/></svg>
+      <svg class="icon"><use href="#i-truck"/></svg>
       <p>No pending orders at the moment.</p>
     </div>
   </div>
 
-  <!-- ==== JS (fetch + UI) ==== -->
-  <script>
-    const API = '/api';
-    const ordersContainer = document.getElementById('orders-container');
-    const loadingEl = document.getElementById('loading');
-    const emptyEl = document.getElementById('empty');
+  <!-- ==== YOUR CUSTOM NOTIFICATION SOUND ==== -->
+  <audio id="notificationSound" src="/notification.mp3" preload="auto"></audio>
 
-    // ---- ICON HELPERS ----
+  <script>
+    /* ==== CONFIG ==== */
+    const API = '/api';
+    const CACHE_KEY = 'delivery-orders-cache';
+    const POLL_MS = 30_000;
+    const PAGE_SIZE = 50;
+    let lastOrderIds = new Set();
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
+
+    const ordersContainer = $('#orders-container');
+    const loadingEl       = $('#loading');
+    const emptyEl         = $('#empty');
+    const sound           = $('#notificationSound');
+    const logoutBtn       = $('#logoutBtn');
+
+    /* ==== ICON HELPERS ==== */
     const icon = (name) => `<svg class="icon"><use href="#i-${name}"/></svg>`;
 
-    // ---- FETCH ORDERS ----
-    async function fetchOrders() {
-      try {
-        loadingEl.classList.remove('hidden');
-        const res = await fetch(`${API}/delivery-orders`);
-        const { success, orders = [] } = await res.json();
+    /* ==== CACHE ==== */
+    const getCache = () => {
+      try { return JSON.parse(localStorage.getItem(CACHE_KEY)); }
+      catch { return null; }
+    };
+    const setCache = (data) => {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); }
+      catch (e) { console.warn('Cache write failed', e); }
+    };
 
-        loadingEl.classList.add('hidden');
+    /* ==== RENDER ONE CARD ==== */
+    const renderCard = (order) => {
+      const itemsHtml = order.items.map(it => `
+        <div class="flex justify-between text-sm text-gray-300">
+          <span>${it.name} × ${it.quantity}</span>
+          <span>₹${(it.price * it.quantity).toFixed(2)}</span>
+        </div>`).join('');
 
-        if (!success || orders.length === 0) {
-          emptyEl.classList.remove('hidden');
-          ordersContainer.innerHTML = '';
-          return;
-        }
+      const badge = {
+        pending:   '<span class="badge badge-pending">Pending</span>',
+        delivered: '<span class="badge badge-delivered">Delivered</span>',
+        cancelled: '<span class="badge badge-cancelled">Cancelled</span>'
+      }[order.status] || '<span class="badge badge-pending">Pending</span>';
 
-        emptyEl.classList.add('hidden');
-        renderOrders(orders);
-      } catch (err) {
-        console.error(err);
-        loadingEl.classList.add('hidden');
-        ordersContainer.innerHTML = `<div class="card text-red-600">Error loading orders. Please try again later.</div>`;
-      }
-    }
+      const actions = order.status === 'pending' ? `
+        <div class="flex gap-2 mt-3">
+          <button class="btn btn-success" data-id="${order._id}" data-action="delivered">
+            ${icon('check')} Delivered
+          </button>
+          <button class="btn btn-danger" data-id="${order._id}" data-action="cancelled">
+            ${icon('times')} Cancel
+          </button>
+        </div>` : '';
 
-    // ---- RENDER ----
-    function renderOrders(orders) {
-      ordersContainer.innerHTML = orders.map(order => {
-        const itemsHtml = order.items.map(it => `
-          <div class="flex justify-between text-sm">
-            <span>${it.name} × ${it.quantity}</span>
-            <span>₹${(it.price * it.quantity).toFixed(2)}</span>
-          </div>`).join('');
-
-        const statusBadge = {
-          pending: '<span class="badge badge-pending">Pending</span>',
-          delivered: '<span class="badge badge-delivered">Delivered</span>',
-          cancelled: '<span class="badge badge-cancelled">Cancelled</span>'
-        }[order.status] || '<span class="badge badge-pending">Pending</span>';
-
-        return `
-        <div class="card">
-          <div class="flex justify-between items-start mb-2">
+      return `
+        <div class="card" data-id="${order._id}">
+          <div class="flex justify-between items-start mb-3">
             <div>
-              <strong>Order #${order._id.slice(-6)}</strong>
+              <strong class="text-lg">Order #${order._id.slice(-6)}</strong>
               <span class="ml-2 text-xs text-gray-500">${new Date(order.date).toLocaleString()}</span>
             </div>
-            <div>${statusBadge}</div>
+            <div>${badge}</div>
           </div>
 
-          <div class="mb-3">
+          <div class="mb-4 space-y-1">
             <p><strong>Customer:</strong> ${order.user.name} (${order.user.phone})</p>
             <p><strong>Address:</strong> ${order.address.line1}${order.address.line2 ? ', '+order.address.line2 : ''}</p>
             <p><strong>Shop:</strong> ${order.shop}</p>
           </div>
 
-          <div class="mb-3">
+          <div class="mb-4 space-y-1">
             ${itemsHtml}
-            <div class="flex justify-between mt-2 font-medium">
+            <div class="flex justify-between mt-3 font-medium text-gray-200">
               <span>Subtotal</span>
               <span>₹${order.totalAmount.toFixed(2)}</span>
             </div>
-            <div class="flex justify-between text-sm text-gray-600">
+            <div class="flex justify-between text-sm text-gray-400">
               <span>Delivery Charge</span>
-              <span>₹${order.deliveryCharge?.toFixed(2) ?? '30.00'}</span>
+              <span>₹${(order.deliveryCharge ?? 30).toFixed(2)}</span>
             </div>
-            <div class="flex justify-between font-bold text-lg mt-1">
+            <div class="flex justify-between font-bold text-xl mt-2 text-white">
               <span>Grand Total</span>
               <span>₹${(order.totalAmount + (order.deliveryCharge ?? 30)).toFixed(2)}</span>
             </div>
           </div>
 
-          ${order.status === 'pending' ? `
-          <div class="flex gap-2">
-            <button class="btn btn-success" data-id="${order._id}" data-action="delivered">
-              ${icon('check')} Delivered
-            </button>
-            <button class="btn btn-danger" data-id="${order._id}" data-action="cancelled">
-              ${icon('times')} Cancel
-            </button>
-          </div>` : ''}
+          ${actions}
         </div>`;
-      }).join('');
-    }
+    };
 
-    // ---- UPDATE STATUS ----
-    ordersContainer.addEventListener('click', async e => {
+    /* ==== RENDER ALL / UPDATE ONE ==== */
+    const renderAll = (orders) => {
+      ordersContainer.innerHTML = orders.map(renderCard).join('');
+    };
+    const updateCard = (order) => {
+      const el = ordersContainer.querySelector(`[data-id="${order._id}"]`);
+      if (el) el.outerHTML = renderCard(order);
+      else ordersContainer.insertAdjacentHTML('beforeend', renderCard(order));
+    };
+
+    /* ==== FETCH ORDERS + PLAY YOUR SOUND ON NEW ORDER ==== */
+    const fetchOrders = async (useCache = true) => {
+      if (useCache) {
+        const cached = getCache();
+        if (cached?.orders?.length) {
+          emptyEl.classList.add('hidden');
+          renderAll(cached.orders);
+          lastOrderIds = new Set(cached.orders.map(o => o._id));
+        }
+      }
+
+      try {
+        loadingEl.classList.remove('hidden');
+        const url = `${API}/delivery-orders?limit=${PAGE_SIZE}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        const payload = await res.json();
+
+        loadingEl.classList.add('hidden');
+
+        if (!payload.success || !payload.orders?.length) {
+          emptyEl.classList.remove('hidden');
+          ordersContainer.innerHTML = '';
+          setCache(payload);
+          lastOrderIds.clear();
+          return;
+        }
+
+        emptyEl.classList.add('hidden');
+
+        // Detect NEW orders
+        const newOrders = payload.orders.filter(o => !lastOrderIds.has(o._id));
+        if (newOrders.length > 0 && !useCache) {
+          // Play YOUR custom sound
+          sound.currentTime = 0;
+          sound.play().catch(() => console.log("Sound blocked (user interaction needed)"));
+
+          // Optional visual alert
+          alert(`New Order! ${newOrders.length} new order(s)`);
+        }
+
+        renderAll(payload.orders);
+        setCache(payload);
+        lastOrderIds = new Set(payload.orders.map(o => o._id));
+      } catch (e) {
+        console.error(e);
+        loadingEl.classList.add('hidden');
+        if (!getCache()) {
+          ordersContainer.innerHTML = `<div class="card text-red-600">Network error – using offline cache…</div>`;
+        }
+      }
+    };
+
+    /* ==== STATUS UPDATE (OPTIMISTIC) ==== */
+    ordersContainer.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
 
       const orderId = btn.dataset.id;
-      const status = btn.dataset.action;
+      const newStatus = btn.dataset.action;
+      const card = btn.closest('.card');
+      const oldHTML = btn.innerHTML;
 
       btn.disabled = true;
       btn.innerHTML = `${icon('refresh')} Updating…`;
+
+      const badgeEl = card.querySelector('.badge');
+      const badgeMap = { delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
+      badgeEl.className = `badge ${badgeMap[newStatus] || 'badge-pending'}`;
+      badgeEl.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+      card.querySelector('.flex.gap-2')?.remove();
 
       try {
         const res = await fetch(`${API}/update-order-status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId, status })
+          body: JSON.stringify({ orderId, status: newStatus })
         });
         const data = await res.json();
 
-        if (data.success) {
-          fetchOrders();               // refresh list
+        if (data.success && data.order) {
+          updateCard(data.order);
         } else {
-          alert(data.message || 'Failed to update status');
-          btn.disabled = false;
-          btn.innerHTML = status === 'delivered' ? `${icon('check')} Delivered` : `${icon('times')} Cancel`;
+          throw new Error(data.message || 'Update failed');
         }
       } catch (err) {
         console.error(err);
-        alert('Network error');
+        alert('Update failed – reverting');
+        btn.innerHTML = oldHTML;
         btn.disabled = false;
-        btn.innerHTML = status === 'delivered' ? `${icon('check')} Delivered` : `${icon('times')} Cancel`;
+        fetchOrders(false);
       }
     });
 
-    // ---- AUTO‑REFRESH every 30 seconds ----
-    setInterval(fetchOrders, 30_000);
-    fetchOrders();   // initial load
+    /* ==== LOGOUT ==== */
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to log out?')) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      }
+    });
+
+    /* ==== PREVENT BACK BUTTON & LOCK PAGE ==== */
+    history.pushState(null, null, location.href);
+    window.onpopstate = () => {
+      history.go(1);
+    };
+
+    /* ==== STARTUP + POLLING ==== */
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchOrders(true);
+      setInterval(() => fetchOrders(false), POLL_MS);
+    });
   </script>
 </body>
 </html>

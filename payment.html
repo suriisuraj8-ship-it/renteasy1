@@ -42,11 +42,8 @@
   const CART_KEY = "chatpoint_cart";
   const USER_KEY = "chatpoint_user";
 
-  // ----> READ FROM .env (Render sets REACT_APP_API_URL) <----
-  const API_BASE =
-    typeof process !== "undefined" && process.env?.REACT_APP_API_URL
-      ? process.env.REACT_APP_API_URL
-      : "http://localhost:5000";   // fallback for local dev
+  // FIXED: Use window.location.origin (Render-safe)
+  const API_BASE = window.location.origin;
 
   // ---------- CHECK LOGIN ----------
   function checkLogin() {
@@ -229,7 +226,7 @@
       document.getElementById("successMsg").textContent = "Order placed! ID: " + data.orderId;
 
       localStorage.removeItem(CART_KEY);
-      setTimeout(() => window.location.href = "orders.html", 1500);
+      setTimeout(() => window.location.href = "/orders.html", 1500);  // Render-safe
 
     } catch (err) {
       console.error(err);
