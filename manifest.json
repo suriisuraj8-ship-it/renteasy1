@@ -1,7 +1,7 @@
 {
-  "name": "Chat Point",
+  "name": "Chat Point - Food Delivery",
   "short_name": "ChatPoint",
-  "description": "Order food from local shops",
+  "description": "Order delicious food from local shops",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0f0f1a",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"

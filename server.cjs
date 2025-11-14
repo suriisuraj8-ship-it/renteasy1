@@ -1,5 +1,5 @@
 // ==============================
-// RENT EASY – server.cjs (Render + Local)
+// CHAT POINT – server.cjs (Render + Local)
 // ==============================
 
 require("dotenv").config();
@@ -17,13 +17,14 @@ app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Log every request
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
 // ---------- MONGODB ----------
-const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/renteasy";
+const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/chatpoint";
 mongoose
   .connect(mongoURI)
   .then(() => console.log("MongoDB connected"))
@@ -145,8 +146,10 @@ app.get("/api/shops", async (req, res) => {
 
 app.get("/api/delivery-orders", async (req, res) => {
   try {
+    const limit = parseInt(req.query.limit) || 50;
     const orders = await Order.find({ status: "pending" })
       .sort({ date: -1 })
+      .limit(limit)
       .lean();
     res.json({ success: true, orders });
   } catch (e) {
@@ -178,7 +181,7 @@ app.post("/api/update-order-status", async (req, res) => {
 });
 
 // ==============================
-// USER – MY ORDERS API (MUST BE BEFORE STATIC FILES)
+// USER – MY ORDERS API
 // ==============================
 
 app.get("/api/my-orders", async (req, res) => {
@@ -200,25 +203,52 @@ app.get("/api/my-orders", async (req, res) => {
 });
 
 // ==============================
-// STATIC FILES (MUST BE AFTER ALL API ROUTES)
+// STATIC FILES (MUST BE AFTER APIs)
 // ==============================
 
+// Serve all static files (HTML, images, icons, etc.)
 app.use(express.static(path.join(__dirname)));
 
-app.get("/delivery", (req, res) => {
+// Explicit routes for HTML pages
+app.get("/privacy.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "privacy.html"));
+});
+
+app.get("/delivery.html", (req, res) => {
   res.sendFile(path.join(__dirname, "delivery.html"));
 });
 
-// Catch-all route – MUST BE LAST
+app.get("/orders.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "orders.html"));
+});
+
+app.get("/items.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "items.html"));
+});
+
+app.get("/cart.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "cart.html"));
+});
+
+app.get("/payment.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "payment.html"));
+});
+
+app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
+// Catch-all: Serve index.html for SPA routing
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // ==============================
-// START
+// START SERVER
 // ==============================
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server LIVE on port ${PORT}`);
-  console.log(`Delivery Portal: http://localhost:${PORT}/delivery`);
-  console.log(`My Orders: http://localhost:${PORT}/orders.html`);
+  console.log(`App: http://localhost:${PORT}`);
+  console.log(`Privacy: http://localhost:${PORT}/privacy.html`);
+  console.log(`Delivery: http://localhost:${PORT}/delivery.html`);
 });

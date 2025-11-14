@@ -208,65 +208,16 @@
   <!-- REAL JSON DATA -->
   <script>
     const shops = [
-      {
-        name: "7th Wonder (Cake)",
-        img: "/images/7th-wonder.png",
-        rating: 4.8,
-        desc: "Heavenly cakes & custom desserts.",
-        items: ["Chocolate Cake", "Red Velvet", "Cupcakes", "Birthday Special"]
-      },
-      {
-        name: "Sangambar Udpi-Hotel",
-        img: "/images/sangambar-udpi-hotel.png",
-        rating: 4.6,
-        desc: "Pure vegetarian South Indian meals.",
-        items: ["Masala Dosa", "Idli Vada", "Puri Bhaji", "Filter Coffee"]
-      },
-      {
-        name: "Nandini Grand Hotels",
-        img: "/images/nandini-grand-hotels.png",
-        rating: 4.7,
-        desc: "Crispy dosas with authentic flavors.",
-        items: ["Plain Dosa", "Ghee Roast", "Onion Uttapam", "Podi Idli"]
-      },
-      {
-        name: "Pizza Point",
-        img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
-        rating: 4.5,
-        desc: "Loaded pizzas with fresh toppings.",
-        items: ["Margherita", "Pepperoni", "Veggie Supreme", "BBQ Chicken"]
-      },
-      {
-        name: "Fly Pizza",
-        img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500",
-        rating: 4.6,
-        desc: "100% veg pizzas, light & tasty.",
-        items: ["Paneer Tikka", "Corn & Cheese", "Farmhouse", "Veg Extravaganza"]
-      },
-      {
-        name: "Mister Chef",
-        img: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=500",
-        rating: 4.7,
-        desc: "Juicy burgers with secret sauce.",
-        items: ["Classic Burger", "Cheese Blast", "Veg Crunch", "Fries Combo"]
-      },
-      {
-        name: "Bekary",
-        img: "/images/Bekary.png",
-        rating: 4.5,
-        desc: "Fresh sandwiches & healthy bites.",
-        items: ["Veg Sandwich", "Grilled Cheese", "Club Sandwich", "Cold Coffee"]
-      },
-      {
-        name: "Dolphin",
-        img: "/images/dolphin.png",
-        rating: 4.8,
-        desc: "Tandoori, kebabs & non-veg specials.",
-        items: ["Chicken Tandoori", "Mutton Biryani", "Fish Fry", "Kebab Platter"]
-      }
+      { name: "7th Wonder (Cake)", img: "images/7th-wonder.png", rating: 4.8, desc: "Heavenly cakes & custom desserts.", items: ["Chocolate Cake", "Red Velvet", "Cupcakes", "Birthday Special"] },
+      { name: "Sangambar Udpi-Hotel", img: "images/sangambar-udpi-hotel.png", rating: 4.6, desc: "Pure vegetarian South Indian meals.", items: ["Masala Dosa", "Idli Vada", "Puri Bhaji", "Filter Coffee"] },
+      { name: "Nandini Grand Hotels", img: "images/nandini-grand-hotels.png", rating: 4.7, desc: "Crispy dosas with authentic flavors.", items: ["Plain Dosa", "Ghee Roast", "Onion Uttapam", "Podi Idli"] },
+      { name: "Pizza Point", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500", rating: 4.5, desc: "Loaded pizzas with fresh toppings.", items: ["Margherita", "Pepperoni", "Veggie Supreme", "BBQ Chicken"] },
+      { name: "Fly Pizza", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500", rating: 4.6, desc: "100% veg pizzas, light & tasty.", items: ["Paneer Tikka", "Corn & Cheese", "Farmhouse", "Veg Extravaganza"] },
+      { name: "Mister Chef", img: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=500", rating: 4.7, desc: "Juicy burgers with secret sauce.", items: ["Classic Burger", "Cheese Blast", "Veg Crunch", "Fries Combo"] },
+      { name: "Bekary", img: "images/Bekary.png", rating: 4.5, desc: "Fresh sandwiches & healthy bites.", items: ["Veg Sandwich", "Grilled Cheese", "Club Sandwich", "Cold Coffee"] },
+      { name: "Dolphin", img: "images/dolphin.png", rating: 4.8, desc: "Tandoori, kebabs & non-veg specials.", items: ["Chicken Tandoori", "Mutton Biryani", "Fish Fry", "Kebab Platter"] }
     ];
 
-    // Render Shops
     function renderShops(filter = "") {
       const grid = document.getElementById("grid");
       grid.innerHTML = "";
@@ -298,7 +249,6 @@
       renderShops(term);
     }
 
-    // Sidebar & Profile
     const USER_KEY = "chatpoint_user";
     document.getElementById("navBtn").onclick = () => {
       document.getElementById("sidebar").classList.add("active");
@@ -337,15 +287,43 @@
       }
     }
 
-    // Prevent back button
     history.pushState(null, null, location.href);
     window.onpopstate = () => history.go(1);
 
-    // Init
     window.onload = () => {
       renderShops();
       loadProfile();
     };
+  </script>
+
+  <!-- PWA FIXES: Login Never Breaks + Install Banner + Service Worker -->
+  <script>
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(granted => {
+        if (granted) console.log("Login saved forever!");
+      });
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#ff6b35;color:#000;padding:16px;text-align:center;font-weight:700;z-index:9999;box-shadow:0 -5px 20px rgba(0,0,0,0.3);';
+      banner.innerHTML = 'Install ChatPoint for best experience! <button onclick="installNow()" style="margin:0 10px;background:#000;color:white;border:none;padding:10px 20px;border-radius:50px;">Install</button> <button onclick="this.parentElement.remove()" style="background:transparent;color:#000;border:none;font-size:20px;">×</button>';
+      document.body.appendChild(banner);
+    });
+
+    window.installNow = () => {
+      document.querySelector('#installBanner')?.remove();
+      deferredPrompt?.prompt();
+    };
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
   </script>
 </body>
 </html>
